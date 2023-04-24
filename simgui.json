@@ -1,0 +1,32 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "AdvantageKit": {
+        "open": true
+      },
+      "CameraPublisher": {
+        "USB Camera 0": {
+          "open": true
+        },
+        "open": true
+      },
+      "Shuffleboard": {
+        "hi": {
+          "open": true
+        },
+        "open": true
+      },
+      "photonvision": {
+        "USB Camera 0": {
+          "open": true
+        },
+        "open": true
+      }
+    }
+  }
+}
