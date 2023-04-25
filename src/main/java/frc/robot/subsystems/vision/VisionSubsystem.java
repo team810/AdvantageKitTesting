@@ -20,20 +20,16 @@ public class VisionSubsystem extends SubsystemBase {
 
 	private VisionSubsystem() {
 		
-		limelight = new Camera("Integrated_Webcam", "http://localhost:5800");
+		limelight = new Camera("USB__Live_camera", "http://localhost:5800");
 
 		if(RobotBase.isSimulation()) {
 			NetworkTableInstance inst = NetworkTableInstance.getDefault();
 			inst.stopServer();
-
-
 			// Change the IP address in the below function to the IP address you use to connect to the PhotonVision UI.
 			inst.startClient4("Robot Simulation");
 			inst.setServer("localhost");
 			inst.startDSClient();
 		}
-
-
 	}
 
 	@Override

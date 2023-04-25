@@ -1,10 +1,14 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
+
+import java.awt.geom.Point2D;
 
 public class Camera {
 	private final HttpCamera feed;
@@ -50,6 +54,9 @@ public class Camera {
 			Logger.getInstance().recordOutput(prefix + "/BestTarget/Yaw", camera.getLatestResult().getBestTarget().getYaw());
 
 			Logger.getInstance().recordOutput(prefix + "/BestTarget/Transform3d", new Pose3d(camera.getLatestResult().getBestTarget().getBestCameraToTarget().getTranslation(),new Rotation3d()));
+
+			Logger.getInstance().recordOutput(prefix + "/BestTarget/PointX", new double[]{0.0, 15 + camera.getLatestResult().getBestTarget().getYaw()});
+			Logger.getInstance().recordOutput(prefix + "/BestTarget/PointY", new double[]{0, camera.getLatestResult().getBestTarget().getPitch() + 20});
 
 		}
 	}
