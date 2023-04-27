@@ -20,7 +20,9 @@ public class VisionSubsystem extends SubsystemBase {
 
 	private VisionSubsystem() {
 		
-		limelight = new Camera("USB__Live_camera", "http://localhost:5800");
+//		limelight = new Camera("USB__Live_camera", "http://localhost:5800");
+
+		limelight = new Camera("Integrated_Webcam", "http://localhost:5800");
 
 		if(RobotBase.isSimulation()) {
 			NetworkTableInstance inst = NetworkTableInstance.getDefault();

@@ -5,34 +5,52 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.Robot;
+import frc.robot.commands.drivetrain.DeffultDriveCommand;
 import lib.MoreMath;
+import org.littletonrobotics.junction.Logger;
 
 public class DrivetrainSubsystem implements Subsystem {
 
-	SwerveModule front_left;
-	SwerveModule front_right;
-	SwerveModule back_left;
-	SwerveModule back_right;
+	private static DrivetrainSubsystem drivetrain;
 
-	AHRS gyro;
+	private final SwerveModule front_left;
+	private final SwerveModule front_right;
+	private final SwerveModule back_left;
+	private final SwerveModule back_right;
 
-	SwerveDriveKinematics kinematics;
-	SwerveModulePosition[] modulePositions = {null, null, null, null};
-	SwerveDrivePoseEstimator poseEstimator;
-	PIDController rotateController = new PIDController(.5,0,0);
+	private final AHRS gyro;
 
+	private final SwerveDriveKinematics kinematics;
+
+	private final SwerveModulePosition[] modulePositions = {null, null, null, null};
+	private final SwerveDrivePoseEstimator poseEstimator;
+	private final SwerveDriveOdometry odometry;
+	private final PIDController rotateController = new PIDController(1,0,0);
 	private ChassisSpeeds autoAline;
+
 	private SwerveModuleState[] autoStates;
 	private double rotateTarget;
 
-	public DrivetrainSubsystem() {
+	public static DrivetrainSubsystem getInstance()
+	{
+		if (drivetrain == null)
+		{
+			drivetrain = new DrivetrainSubsystem();
+			drivetrain.setDefaultCommand(new DeffultDriveCommand(() -> Constants.driveController, drivetrain));
+
+			return drivetrain;
+		}else{
+			return drivetrain;
+		}
+	}
+
+	private DrivetrainSubsystem() {
+
 		gyro = new AHRS();
 
 		front_left = new SwerveModule(
@@ -74,8 +92,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		rotateController.enableContinuousInput(-180, 180);
 
-	}
+		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), modulePositions, new Pose2d());
 
+	}
 	public void drive(double x, double y, double rotate)
 	{
 		x = x * Constants.Drivetrain.MAX_SPEED;
@@ -88,12 +107,12 @@ public class DrivetrainSubsystem implements Subsystem {
 		{
 			ChassisSpeeds speeds = new ChassisSpeeds(x, y, rotate);
 			states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(speeds,getGyroRotation()));
-			
+
 		} else if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_TURN) {
 			double rotateSpeed;
 			rotateSpeed = rotateController.calculate(getGyroRotation().getDegrees(), rotateTarget - 180);
 			rotateSpeed = rotateSpeed * Constants.Drivetrain.MAX_SPEED;
-			rotateSpeed = MoreMath.MinMax(rotateSpeed, 1,-1);
+			rotateSpeed = MoreMath.MinMax(rotateSpeed, 3,-3);
 
 			ChassisSpeeds speeds = new ChassisSpeeds(x, y, rotateSpeed);
 
@@ -101,14 +120,34 @@ public class DrivetrainSubsystem implements Subsystem {
 		} else if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_ALINE) {
 			states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(autoAline, getGyroRotation()));
 		}else if(Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_DRIVE_MODE){
+			System.out.println("Hello");
 			states = autoStates;
 		}else{
 			states = kinematics.toSwerveModuleStates(new ChassisSpeeds(0,0,0));
 		}
 
+		if (Robot.isSimulation()) {
+			double roationAmount = kinematics.toChassisSpeeds(states).omegaRadiansPerSecond;
+			if (roationAmount >= .1 || roationAmount <= -.1)
+			{
+				gyro.setAngleAdjustment(gyro.getAngleAdjustment() + (roationAmount * Constants.Drivetrain.TURNING_SPEED_SIM));
+			}
+		}
+
+		double moduleStates[] =
+		{
+				states[0].angle.getDegrees(),states[0].speedMetersPerSecond,
+				states[1].angle.getDegrees(),states[1].speedMetersPerSecond,
+				states[2].angle.getDegrees(),states[2].speedMetersPerSecond,
+				states[3].angle.getDegrees(),states[3].speedMetersPerSecond
+		};
+		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
+		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
 
 		setModuleStates(states);
 	}
+
+
 
 	private void setModuleStates(SwerveModuleState[] moduleStates)
 	{
@@ -134,11 +173,11 @@ public class DrivetrainSubsystem implements Subsystem {
 	{
 
 	}
-
 	private void autoPeriodic()
 	{
 
 	}
+
 
 	@Override
 	public void periodic() {
@@ -159,12 +198,32 @@ public class DrivetrainSubsystem implements Subsystem {
 
 			poseEstimator.update(getGyroRotation(), modulePositions);
 		}
+		double[] states =
+				{
+						modulePositions[0].angle.getDegrees(), modulePositions[0].distanceMeters,
+						modulePositions[1].angle.getDegrees(), modulePositions[1].distanceMeters,
+						modulePositions[2].angle.getDegrees(), modulePositions[2].distanceMeters,
+						modulePositions[3].angle.getDegrees(), modulePositions[3].distanceMeters
+				};
+
+		if (Robot.isSimulation())
+		{
+			modulePositions[0] = front_left.getModulePosition();
+			modulePositions[1] = front_right.getModulePosition();
+			modulePositions[2] = back_left.getModulePosition();
+			modulePositions[3] = back_right.getModulePosition();
+
+			odometry.update(gyro.getRotation2d(), modulePositions);
+		}
+
+		Logger.getInstance().recordOutput("Drivetrain/Position", odometry.getPoseMeters());
 	}
 
 	public Rotation2d getGyroRotation()
 	{
 		return gyro.getRotation2d();
 	}
+
 	public void resetGyro()
 	{
 		gyro.zeroYaw();
@@ -173,10 +232,10 @@ public class DrivetrainSubsystem implements Subsystem {
 		rotateTarget = mRotateTarget;
 	}
 	public boolean atSetpoint(){return rotateController.atSetpoint();}
-
 	public void setAutoAline(ChassisSpeeds mAutoAline) {
 		autoAline = mAutoAline;
 	}
+
 	public Pose2d getPose()
 	{
 		return poseEstimator.getEstimatedPosition();
@@ -187,6 +246,10 @@ public class DrivetrainSubsystem implements Subsystem {
 	}
 	public void setAutoStates(SwerveModuleState[] mAutoStates) {
 		autoStates = mAutoStates;
+//		System.out.println("hello");
+	}
+	public SwerveDriveKinematics getKinematics() {
+		return kinematics;
 	}
 }
 

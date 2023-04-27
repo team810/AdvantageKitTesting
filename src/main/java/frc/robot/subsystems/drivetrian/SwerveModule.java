@@ -6,11 +6,14 @@ import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import lib.MoreMath;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
 	private final CANSparkMax driveMotor;
@@ -24,6 +27,8 @@ public class SwerveModule {
 
 	private double speed;
 	private double angle;
+
+	private double distanceTraveled;
 
 	public SwerveModule(
 			int driveID,
@@ -70,6 +75,8 @@ public class SwerveModule {
 
 		modulePosition = new SwerveModulePosition(0,new Rotation2d(0));
 		shuffleBoardInit();
+
+		distanceTraveled = 0;
 	}
 
 	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
@@ -92,9 +99,17 @@ public class SwerveModule {
 
 		driveMotor.set(speed / Constants.Drivetrain.MAX_SPEED);
 
+		if (Robot.isReal())
+		{
+			modulePosition = new SwerveModulePosition(driveMotor.get(), new Rotation2d(Math.toRadians(angle)));
+		} else if (Robot.isSimulation()) {
 
-		modulePosition = new SwerveModulePosition(driveMotor.get(), new Rotation2d(Math.toRadians(angle)));
-
+			// This is for sim
+			 modulePosition = new SwerveModulePosition(
+			 modulePosition.distanceMeters + speed * .02,
+				 new Rotation2d(Math.toRadians(angle))
+			 );
+		}
 	}
 	public SwerveModulePosition getModulePosition() {
 		return modulePosition;
@@ -134,5 +149,9 @@ public class SwerveModule {
 		layout.addDouble("Calc", () -> controller.calculate(canCoder.getAbsolutePosition(), angle));
 		layout.addBoolean("At setpoint", () -> controller.atSetpoint());
 		layout.addDouble("Setpoint", () -> controller.getSetpoint());
+
+
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/ModuleState", new SwerveModuleState(modulePosition.distanceMeters, modulePosition.angle));
+
 	}
 }

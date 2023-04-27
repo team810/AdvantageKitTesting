@@ -1,11 +1,20 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.PIDConstants;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class Constants {
+
+	public static final XboxController driveController = new XboxController(0);
+
 	public static final class Drivetrain
 	{
+		public static final PIDConstants TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
+		public static final PIDConstants ROTATION_CONSTANTS = new PIDConstants(1,0,0);
+
+		public static final double TURNING_SPEED_SIM = .7; // Degrees per tick
 
 		public static final double MAX_TURNING_SPEED = .5;
 		public static final class frontLeft

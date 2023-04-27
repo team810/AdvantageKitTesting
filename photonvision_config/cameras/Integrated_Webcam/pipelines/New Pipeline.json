@@ -4,27 +4,27 @@
   "inputImageRotationMode" : "DEG_0",
   "pipelineNickname" : "New Pipeline",
   "cameraAutoExposure" : false,
-  "cameraExposure" : 100.0,
+  "cameraExposure" : 6.0,
   "cameraBrightness" : 50,
   "cameraGain" : -1,
   "cameraRedGain" : -1,
   "cameraBlueGain" : -1,
-  "cameraVideoModeIndex" : 6,
+  "cameraVideoModeIndex" : 4,
   "streamingFrameDivisor" : "NONE",
   "ledMode" : true,
   "inputShouldShow" : true,
   "outputShouldShow" : true,
   "hsvHue" : {
-    "first" : 50,
-    "second" : 180
+    "first" : 0,
+    "second" : 11
   },
   "hsvSaturation" : {
-    "first" : 50,
-    "second" : 255
+    "first" : 41,
+    "second" : 61
   },
   "hsvValue" : {
-    "first" : 50,
-    "second" : 255
+    "first" : 129,
+    "second" : 149
   },
   "hueInverted" : false,
   "outputShouldDraw" : true,

@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drivetrian.DrivetrainSubsystem;
+import lib.MoreMath;
 
 import java.util.function.Supplier;
 
@@ -29,20 +30,53 @@ public class DeffultDriveCommand extends CommandBase {
 
 	}
 
+	private double deadband(double value, double deadband) {
+//		if (Math.abs(value) > deadband) {
+//			if (value > 0.0) {
+//				return (value - deadband) / (1.0 - deadband);
+//			} else {
+//				return (value + deadband) / (1.0 - deadband);
+//			}
+//		} else {
+//			return 0.0;
+//		}
+		if (MoreMath.MinMax(value, deadband, -deadband) == deadband || MoreMath.MinMax(value, deadband, -deadband) == -deadband)
+		{
+			return Math.pow(value, 3);
+
+		}else{
+			return 0;
+		}
+	}
+
 	@Override
 	public void execute() {
-		if (controller.get().getPOV() != -1)
+		if (RobotState.isTeleop())
 		{
-			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_TURN;
-			m_drive.setRotateTarget(controller.get().getPOV());
-		} else if (controller.get().getPOV() == -1) {
-			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE;
-		}
-		if (RobotState.isAutonomous() && Constants.Drivetrain.DRIVE_MODE != Constants.Drivetrain.AUTO_ALINE) {
-			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE;
+			if (controller.get().getPOV() != -1)
+			{
+				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_TURN;
+				m_drive.setRotateTarget(controller.get().getPOV());
+			} else if (controller.get().getPOV() == -1) {
+				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE;
+			}
+			if (RobotState.isAutonomous() && Constants.Drivetrain.DRIVE_MODE != Constants.Drivetrain.AUTO_ALINE) {
+				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE;
+			}
+			double leftX = deadband(controller.get().getLeftX(), .15);
+			double leftY = deadband(controller.get().getLeftY(), .15);
+			double rightX = deadband(controller.get().getRightX(), .15);
+
+//		System.out.println(rightX);
+//		m_drive.drive(-controller.get().getLeftY(), -controller.get().getLeftX(), controller.get().getRightX());
+			m_drive.drive(-leftY, -leftX, rightX);
 		}
 
-		m_drive.drive(controller.get().getLeftX(), controller.get().getLeftY(), controller.get().getRightX());
+		if (RobotState.isAutonomous())
+		{
+			m_drive.drive(0,0,0);
+		}
+
 	}
 
 	@Override

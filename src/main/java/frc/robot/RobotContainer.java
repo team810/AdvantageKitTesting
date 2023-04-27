@@ -6,20 +6,17 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.drivetrian.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer
 {
 
     public RobotContainer()
     {
         VisionSubsystem.getInstance();
+        DrivetrainSubsystem.getInstance();
+
 
         // Configure the trigger bindings
         configureBindings();
@@ -40,7 +37,6 @@ public class RobotContainer
      */
     public Command getAutonomousCommand()
     {
-        // TODO: Implement properly
-        return null;
+        return Auto.getInstance().generateCommand("Path");
     }
 }
