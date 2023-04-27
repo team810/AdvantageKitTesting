@@ -11,8 +11,8 @@ public class Constants {
 
 	public static final class Drivetrain
 	{
-		public static final PIDConstants TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
-		public static final PIDConstants ROTATION_CONSTANTS = new PIDConstants(1,0,0);
+		public static PIDConstants TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
+		public static PIDConstants ROTATION_CONSTANTS = new PIDConstants(1,0,0);
 
 		public static final double TURNING_SPEED_SIM = .7; // Degrees per tick
 
@@ -54,7 +54,7 @@ public class Constants {
 		public static final int AUTO_DRIVE_MODE = 2;
 		public static final int AUTO_ALINE = 3;
 		public static final int AUTO_TURN = 4; // AUTO turn will still allow x and y movement
-
+		public static final int DISABLED = 5;
 		public static int DRIVE_MODE = 0;
 
 		public static final double MAX_SPEED = 4.8;

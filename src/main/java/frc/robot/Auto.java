@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,6 +20,13 @@ public class Auto {
 
 	private Auto()
 	{
+
+		if (Robot.isSimulation())
+		{
+			Constants.Drivetrain.ROTATION_CONSTANTS = new PIDConstants(0,0,0);
+			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
+		}
+
 
 		autoBuilder = new SwerveAutoBuilder(
 				DrivetrainSubsystem.getInstance()::getPose,

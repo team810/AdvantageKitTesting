@@ -94,6 +94,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), modulePositions, new Pose2d());
 
+
 	}
 	public void drive(double x, double y, double rotate)
 	{
@@ -102,7 +103,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		rotate = rotate * Constants.Drivetrain.MAX_SPEED;
 
 		SwerveModuleState[] states;
-//		Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE;
+
 		if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		{
 			ChassisSpeeds speeds = new ChassisSpeeds(x, y, rotate);
@@ -120,7 +121,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		} else if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_ALINE) {
 			states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(autoAline, getGyroRotation()));
 		}else if(Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_DRIVE_MODE){
-			System.out.println("Hello");
+
 			states = autoStates;
 		}else{
 			states = kinematics.toSwerveModuleStates(new ChassisSpeeds(0,0,0));
@@ -141,6 +142,7 @@ public class DrivetrainSubsystem implements Subsystem {
 				states[2].angle.getDegrees(),states[2].speedMetersPerSecond,
 				states[3].angle.getDegrees(),states[3].speedMetersPerSecond
 		};
+
 		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
 		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
 
@@ -181,6 +183,16 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	@Override
 	public void periodic() {
+
+		if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_DRIVE_MODE)
+		{
+			if (autoStates == null)
+			{
+				setAutoStates(getKinematics().toSwerveModuleStates(new ChassisSpeeds(0,0,0)));
+			}
+			drive(0,0,0);
+		}
+
 		if (RobotState.isTeleop())
 		{
 			teleopPeriodic();
@@ -238,15 +250,14 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	public Pose2d getPose()
 	{
-		return poseEstimator.getEstimatedPosition();
+		return odometry.getPoseMeters();
 	}
 	public void resetPos(Pose2d pos)
 	{
-		poseEstimator.resetPosition(getGyroRotation(),modulePositions, pos);
+		odometry.resetPosition(getGyroRotation(),modulePositions, pos);
 	}
 	public void setAutoStates(SwerveModuleState[] mAutoStates) {
 		autoStates = mAutoStates;
-//		System.out.println("hello");
 	}
 	public SwerveDriveKinematics getKinematics() {
 		return kinematics;
