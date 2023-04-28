@@ -14,13 +14,11 @@ public class DeffultDriveCommand extends CommandBase {
 
 	private final Supplier<XboxController> controller;
 	private final DrivetrainSubsystem m_drive;
-	private final ToTargetCommand m_toTargetCommand;
-	
+
 	public DeffultDriveCommand(Supplier<XboxController> controller, DrivetrainSubsystem m_drive) {
 		this.controller = controller;
 		this.m_drive = m_drive;
 
-		m_toTargetCommand = new ToTargetCommand(m_drive);
 
 		addRequirements(m_drive);
 	}

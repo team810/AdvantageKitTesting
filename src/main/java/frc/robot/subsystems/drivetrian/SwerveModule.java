@@ -7,9 +7,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import lib.MoreMath;
@@ -27,8 +24,6 @@ public class SwerveModule {
 
 	private double speed;
 	private double angle;
-
-	private double distanceTraveled;
 
 	public SwerveModule(
 			int driveID,
@@ -76,7 +71,6 @@ public class SwerveModule {
 		modulePosition = new SwerveModulePosition(0,new Rotation2d(0));
 		shuffleBoardInit();
 
-		distanceTraveled = 0;
 	}
 
 	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
@@ -111,6 +105,13 @@ public class SwerveModule {
 			 );
 		}
 	}
+
+	public void setMode(CANSparkMax.IdleMode mode)
+	{
+		driveMotor.setIdleMode(mode);
+		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+	}
+
 	public SwerveModulePosition getModulePosition() {
 		return modulePosition;
 	}
@@ -134,22 +135,18 @@ public class SwerveModule {
 				moduleName = "How";
 				break;
 		}
-		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-		ShuffleboardLayout layout = tab.getLayout(moduleName, "List");
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Raw Encoder Value", canCoder.getAbsolutePosition());
 
-		layout.addDouble("Raw Encoder Value", () -> canCoder.getAbsolutePosition());
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Speed",driveMotor.getEncoder().getVelocity());
 
-		layout.addDouble("Speed", () -> driveMotor.getEncoder().getVelocity());
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Speed Set", getModulePosition().distanceMeters);
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Angle", getModulePosition().angle.getDegrees());
 
-		layout.addDouble("Speed Set", () -> getModulePosition().distanceMeters);
-		layout.addDouble("Angle", () -> getModulePosition().angle.getDegrees());
-
-		layout.addDouble("Steer Motor Speed", () ->steerMotor.get());
-		layout.addDouble("Calc", () -> controller.calculate(canCoder.getAbsolutePosition(), angle));
-		layout.addBoolean("At setpoint", () -> controller.atSetpoint());
-		layout.addDouble("Setpoint", () -> controller.getSetpoint());
-
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Steer Motor Speed", steerMotor.get());
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Calc", controller.calculate(canCoder.getAbsolutePosition(), angle));
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/At setpoint", controller.atSetpoint());
+		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Setpoint", controller.getSetpoint());
 
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/ModuleState", new SwerveModuleState(modulePosition.distanceMeters, modulePosition.angle));
 

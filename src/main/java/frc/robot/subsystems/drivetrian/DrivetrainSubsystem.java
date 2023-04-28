@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drivetrian;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -169,6 +170,21 @@ public class DrivetrainSubsystem implements Subsystem {
 				moduleStates[0].speedMetersPerSecond,
 				moduleStates[0].angle.getDegrees()
 		);
+	}
+
+	public void setBreak()
+	{
+		front_left.setMode(CANSparkMax.IdleMode.kBrake);
+		front_right.setMode(CANSparkMax.IdleMode.kBrake);
+		back_left.setMode(CANSparkMax.IdleMode.kBrake);
+		back_right.setMode(CANSparkMax.IdleMode.kBrake);
+	}
+	public void setCoast()
+	{
+		front_left.setMode(CANSparkMax.IdleMode.kCoast);
+		front_right.setMode(CANSparkMax.IdleMode.kCoast);
+		back_left.setMode(CANSparkMax.IdleMode.kCoast);
+		back_right.setMode(CANSparkMax.IdleMode.kCoast);
 	}
 
 	private void teleopPeriodic()
