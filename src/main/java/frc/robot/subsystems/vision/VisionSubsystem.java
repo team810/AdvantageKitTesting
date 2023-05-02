@@ -24,7 +24,6 @@ public class VisionSubsystem extends SubsystemBase {
 
 		limelight = new Camera("Integrated_Webcam", "http://localhost:5800");
 
-
 		if(RobotBase.isSimulation()) {
 			NetworkTableInstance inst = NetworkTableInstance.getDefault();
 			inst.stopServer();
@@ -33,6 +32,9 @@ public class VisionSubsystem extends SubsystemBase {
 			inst.setServer("localhost");
 			inst.startDSClient();
 		}
+
+
+
 	}
 
 	@Override

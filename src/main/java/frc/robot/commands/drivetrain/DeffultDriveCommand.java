@@ -65,8 +65,6 @@ public class DeffultDriveCommand extends CommandBase {
 			double leftY = deadband(controller.get().getLeftY(), .15);
 			double rightX = deadband(controller.get().getRightX(), .15);
 
-//		System.out.println(rightX);
-//		m_drive.drive(-controller.get().getLeftY(), -controller.get().getLeftX(), controller.get().getRightX());
 			m_drive.drive(-leftY, -leftX, rightX);
 		}
 

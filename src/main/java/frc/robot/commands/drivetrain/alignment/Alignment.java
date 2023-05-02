@@ -25,15 +25,14 @@ public class Alignment {
 		switch (target)
 		{
 			case kReflectiveTape:
-				break;
+				return null;
 			case kAprilTag:
-				break;
+				return null;
 			case kCube:
-				break;
+				return null;
 			case kCone:
-				break;
+				return null;
 		}
-
-		return new InstantCommand(() -> System.out.println("HELLO"));
+		return new InstantCommand(() -> System.out.println("idk how that is possible ??? is it null ?? why did we not get a nullprt error then ??? I am having a crisis"));
 	}
 }

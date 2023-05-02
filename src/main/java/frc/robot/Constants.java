@@ -75,4 +75,9 @@ public class Constants {
 				new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
 						-DRIVETRAIN_WHEELBASE_METERS / 2.0));
 	}
+
+	public static class IntakeConstants
+	{
+		public static final double INTAKE_SPEED = .8;
+	}
 }
