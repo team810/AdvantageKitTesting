@@ -37,6 +37,8 @@ public class DrivetrainSubsystem implements Subsystem {
 	private SwerveModuleState[] autoStates;
 	private double rotateTarget;
 
+
+
 	public static DrivetrainSubsystem getInstance()
 	{
 		if (drivetrain == null)
@@ -143,7 +145,15 @@ public class DrivetrainSubsystem implements Subsystem {
 				states[2].angle.getDegrees(),states[2].speedMetersPerSecond,
 				states[3].angle.getDegrees(),states[3].speedMetersPerSecond
 		};
+		double targetStates[] =
+				{
+					front_left.getTargetStates().angle.getDegrees(),front_left.getTargetStates().speedMetersPerSecond,
+					front_right.getTargetStates().angle.getDegrees(),front_right.getTargetStates().speedMetersPerSecond,
+					back_left.getTargetStates().angle.getDegrees(),	back_left.getTargetStates().speedMetersPerSecond,
+					back_right.getTargetStates().angle.getDegrees(),back_right.getTargetStates().speedMetersPerSecond
+				};
 
+		Logger.getInstance().recordOutput("Drivetrain/TargetStatesModule", targetStates);
 		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
 		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
 
@@ -199,6 +209,12 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	@Override
 	public void periodic() {
+
+
+		front_left.update();
+		front_right.update();
+		back_right.update();
+		back_left.update();
 
 		if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_DRIVE_MODE)
 		{

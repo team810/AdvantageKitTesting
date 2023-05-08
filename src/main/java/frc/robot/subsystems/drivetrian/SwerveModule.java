@@ -1,6 +1,8 @@
 package frc.robot.subsystems.drivetrian;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.math.controller.PIDController;
@@ -18,6 +20,7 @@ public class SwerveModule {
 	private final PIDController controller;
 
 	private CANCoder canCoder;
+	private final double canOffset;
 	private final int module;
 
 	private SwerveModulePosition modulePosition;
@@ -37,20 +40,22 @@ public class SwerveModule {
 		steerMotor = new CANSparkMax(steerID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
 		canCoder = new CANCoder(canCoderID);
+		canOffset = canCoderOffset;
+
+
+		CANCoderConfiguration configuration = new CANCoderConfiguration();
+		configuration.absoluteSensorRange = AbsoluteSensorRange.valueOf(0);
+		configuration.magnetOffsetDegrees = canCoderOffset;
+
+		canCoder.configAllSettings(configuration);
 
 		this.module = module;
-
-		canCoder.configMagnetOffset(canCoderOffset);
 
 		driveMotor.restoreFactoryDefaults();
 		steerMotor.restoreFactoryDefaults();
 
 		steerMotor.clearFaults();
 		driveMotor.clearFaults();
-
-//		CANCoderSimCollection sim = new CANCoderSimCollection(canCoder);
-
-//		sim.addPosition(5);
 
 		driveMotor.setSmartCurrentLimit(40);
 		steerMotor.setSmartCurrentLimit(40);
@@ -64,28 +69,43 @@ public class SwerveModule {
 		driveMotor.set(0);
 		steerMotor.set(0);
 
-		controller = new PIDController(.5,0,0);
+		controller = new PIDController(.007,0,0);
 
 		controller.enableContinuousInput(-180,180);
 
-		modulePosition = new SwerveModulePosition(0,new Rotation2d(0));
-		shuffleBoardInit();
+		controller.setTolerance(1);
 
+		modulePosition = new SwerveModulePosition(0,new Rotation2d(0));
+		log();
 	}
 
 	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
 	{
 		this.speed = speed;
 		this.angle = angle;
+	}
 
+	private void updateModule()
+	{
+		if (Robot.isReal())
+		{
+			steerMotor.set(
+					MoreMath.MinMax(
+							controller.calculate(canCoder.getAbsolutePosition(), angle),
+							Constants.Drivetrain.MAX_TURNING_SPEED,
+							-Constants.Drivetrain.MAX_TURNING_SPEED
+					)
+			);
+		} else if (Robot.isSimulation()) {
+			steerMotor.set(
+					MoreMath.MinMax(
+							controller.calculate(canCoder.getAbsolutePosition(), angle),
+							Constants.Drivetrain.MAX_TURNING_SPEED,
+							-Constants.Drivetrain.MAX_TURNING_SPEED
+					)
+			);
 
-		steerMotor.set(
-				MoreMath.MinMax(
-						controller.calculate(canCoder.getAbsolutePosition(), angle),
-						-Constants.Drivetrain.MAX_TURNING_SPEED,
-						Constants.Drivetrain.MAX_TURNING_SPEED
-				)
-		);
+		}
 		if (controller.atSetpoint())
 		{
 			steerMotor.set(0);
@@ -96,14 +116,20 @@ public class SwerveModule {
 		if (Robot.isReal())
 		{
 			modulePosition = new SwerveModulePosition(driveMotor.get(), new Rotation2d(Math.toRadians(angle)));
+
 		} else if (Robot.isSimulation()) {
 
 			// This is for sim
-			 modulePosition = new SwerveModulePosition(
-			 modulePosition.distanceMeters + speed * .02,
-				 new Rotation2d(Math.toRadians(angle))
-			 );
+			modulePosition = new SwerveModulePosition(
+					modulePosition.distanceMeters + speed * .02,
+					new Rotation2d(Math.toRadians(angle))
+			);
 		}
+	}
+
+	public SwerveModuleState getTargetStates()
+	{
+		return new SwerveModuleState(speed,new Rotation2d(Math.toRadians(angle)));
 	}
 
 	public void setMode(CANSparkMax.IdleMode mode)
@@ -116,7 +142,14 @@ public class SwerveModule {
 		return modulePosition;
 	}
 
-	private void shuffleBoardInit() {
+	public void update()
+	{
+		updateModule();
+		log();
+	}
+
+	private void log() {
+
 		String moduleName;
 		switch (module) {
 			case 1:
@@ -137,6 +170,7 @@ public class SwerveModule {
 		}
 
 		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Raw Encoder Value", canCoder.getAbsolutePosition());
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/calc Point", Math.toDegrees(canCoder.getAbsolutePosition() + canCoder.configGetMagnetOffset()));
 
 		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Speed",driveMotor.getEncoder().getVelocity());
 
@@ -149,6 +183,5 @@ public class SwerveModule {
 		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Setpoint", controller.getSetpoint());
 
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/ModuleState", new SwerveModuleState(modulePosition.distanceMeters, modulePosition.angle));
-
 	}
 }

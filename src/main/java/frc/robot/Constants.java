@@ -16,7 +16,7 @@ public class Constants {
 
 		public static final double TURNING_SPEED_SIM = .7; // Degrees per tick
 
-		public static final double MAX_TURNING_SPEED = .5;
+		public static final double MAX_TURNING_SPEED = .8;
 		public static final class frontLeft
 		{
 			public final static int STEER_ID = 5;

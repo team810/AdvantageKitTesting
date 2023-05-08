@@ -1,8 +1,6 @@
 package frc.robot.subsystems.vision;
 
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -22,16 +20,18 @@ public class VisionSubsystem extends SubsystemBase {
 		
 //		limelight = new Camera("USB__Live_camera", "http://localhost:5800");
 
-		limelight = new Camera("Integrated_Webcam", "http://localhost:5800");
+//		limelight = new Camera("Integrated_Webcam", "http://localhost:5800");
 
-		if(RobotBase.isSimulation()) {
-			NetworkTableInstance inst = NetworkTableInstance.getDefault();
-			inst.stopServer();
-			// Change the IP address in the below function to the IP address you use to connect to the PhotonVision UI.
-			inst.startClient4("Robot Simulation");
-			inst.setServer("localhost");
-			inst.startDSClient();
-		}
+//		limelight = new Camera("limeLight", "https:10.8.10.2:5800");
+		limelight = null;
+//		if(RobotBase.isSimulation()) {
+//			NetworkTableInstance inst = NetworkTableInstance.getDefault();
+//			inst.stopServer();
+//			// Change the IP address in the below function to the IP address you use to connect to the PhotonVision UI.
+//			inst.startClient4("Robot Simulation");
+//			inst.setServer("localhost");
+//			inst.startDSClient();
+//		}
 
 
 
@@ -39,7 +39,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	@Override
     public void periodic() {
-		limelight.update();
+//		limelight.update();
     }
 }
 
