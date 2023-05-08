@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import lib.SparkMaxGroup;
+import lib.SparkMax.SparkMaxGroup;
 
 public class IntakeSubsystem extends SubsystemBase {
 	private static IntakeSubsystem INSTANCE;
@@ -15,9 +15,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private IntakeSubsystem() {
         intakeMotors = new SparkMaxGroup(
-                new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless),
+                new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless),
                 false,
-                new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless),
+                new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless),
                 true
         );
 

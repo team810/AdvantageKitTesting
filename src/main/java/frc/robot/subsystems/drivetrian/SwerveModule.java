@@ -12,10 +12,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import lib.MoreMath;
+import lib.SparkMax.AdvancedIdleMode;
+import lib.SparkMax.AdvancedSparkMax;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
-	private final CANSparkMax driveMotor;
+	private final AdvancedSparkMax driveMotor;
 	private final CANSparkMax steerMotor;
 	private final PIDController controller;
 
@@ -36,7 +38,7 @@ public class SwerveModule {
 			int module // 1 for front left 2 for front right and so 3 for back left and 4 for back right
 	)
 	{
-		driveMotor = new CANSparkMax(driveID, CANSparkMaxLowLevel.MotorType.kBrushless);
+		driveMotor = new AdvancedSparkMax(driveID, CANSparkMaxLowLevel.MotorType.kBrushless);
 		steerMotor = new CANSparkMax(steerID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
 		canCoder = new CANCoder(canCoderID);
@@ -62,6 +64,8 @@ public class SwerveModule {
 
 		driveMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+		driveMotor.setIdleMode(AdvancedIdleMode.kHardBreak, DrivetrainSubsystem.getInstance());
 
 		driveMotor.setInverted(false);
 		steerMotor.setInverted(false);
