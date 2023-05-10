@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain;
+package frc.robot.subsystems.drivetrian;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -12,11 +12,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import lib.MoreMath;
-import lib.SparkMax.AdvancedIdleMode;
 import lib.SparkMax.AdvancedSparkMax;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveModule {
+public class ModuleReal implements SwerveModuleIO{
 	private final AdvancedSparkMax driveMotor;
 	private final CANSparkMax steerMotor;
 	private final PIDController controller;
@@ -30,7 +29,7 @@ public class SwerveModule {
 	private double speed;
 	private double angle;
 
-	public SwerveModule(
+	public ModuleReal(
 			int driveID,
 			int steerID,
 			int canCoderID,
@@ -85,18 +84,12 @@ public class SwerveModule {
 		log();
 	}
 
-	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
-	{
-		this.speed = speed;
-		this.angle = angle;
-	}
-
 	private void updateModule()
 	{
 		if (Robot.isReal())
 		{
 			steerMotor.set(
-					MoreMath.minMax(
+					MoreMath.MinMax(
 							controller.calculate(canCoder.getAbsolutePosition(), angle),
 							Constants.Drivetrain.MAX_TURNING_SPEED,
 							-Constants.Drivetrain.MAX_TURNING_SPEED
@@ -104,7 +97,7 @@ public class SwerveModule {
 			);
 		} else if (Robot.isSimulation()) {
 			steerMotor.set(
-					MoreMath.minMax(
+					MoreMath.MinMax(
 							controller.calculate(canCoder.getAbsolutePosition(), angle),
 							Constants.Drivetrain.MAX_TURNING_SPEED,
 							-Constants.Drivetrain.MAX_TURNING_SPEED
@@ -133,21 +126,34 @@ public class SwerveModule {
 		}
 	}
 
-	public SwerveModuleState getTargetStates()
+	@Override
+	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
 	{
-		return new SwerveModuleState(speed,new Rotation2d(Math.toRadians(angle)));
+		this.speed = speed;
+		this.angle = angle;
 	}
 
-	public void setMode(CANSparkMax.IdleMode mode)
-	{
-		driveMotor.setIdleMode(mode);
-		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+	@Override
+	public SwerveModuleState currentState() {
+		return new SwerveModuleState(driveMotor.getAppliedOutput(), new Rotation2d(canCoder.getAbsolutePosition()));
 	}
 
-	public SwerveModulePosition getModulePosition() {
-		return modulePosition;
+	@Override
+	public SwerveModuleState targetState() {
+		return null;
 	}
 
+
+	@Override
+	public void setIdleModeDrive(CANSparkMax.IdleMode mode) {
+
+	}
+
+	@Override
+	public void setIdleModeRot(CANSparkMax.IdleMode mode) {
+
+	}
+	@Override
 	public void update()
 	{
 		updateModule();
@@ -189,5 +195,9 @@ public class SwerveModule {
 		Logger.getInstance().recordOutput("Drivetrain/"+ moduleName + "/Setpoint", controller.getSetpoint());
 
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/ModuleState", new SwerveModuleState(modulePosition.distanceMeters, modulePosition.angle));
+	}
+
+	private SwerveModulePosition getModulePosition() {
+		return modulePosition;
 	}
 }
