@@ -5,14 +5,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
 
-	private static VisionSubsystem INSTANCE;
-
+	private static VisionSubsystem INSTANCE = new VisionSubsystem();
 	private final Camera limelight;
 
 	public static VisionSubsystem getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new VisionSubsystem();
-		}
 		return INSTANCE;
 	}
 

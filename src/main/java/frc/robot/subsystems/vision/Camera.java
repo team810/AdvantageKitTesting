@@ -31,7 +31,6 @@ public class Camera {
 
 		camera = new PhotonCamera(name);
 
-
 		this.name = name;
 
 		prefix = "Vision/Raw/" + this.name;
