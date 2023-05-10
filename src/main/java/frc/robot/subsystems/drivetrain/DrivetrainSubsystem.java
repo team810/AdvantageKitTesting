@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrian;
+package frc.robot.subsystems.drivetrain;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.commands.drivetrain.DeffultDriveCommand;
+import frc.robot.commands.drivetrain.DefaultDriveCommand;
 import lib.MoreMath;
 import org.littletonrobotics.junction.Logger;
 
@@ -44,7 +44,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		if (drivetrain == null)
 		{
 			drivetrain = new DrivetrainSubsystem();
-			drivetrain.setDefaultCommand(new DeffultDriveCommand(() -> Constants.driveController, drivetrain));
+			drivetrain.setDefaultCommand(new DefaultDriveCommand(() -> Constants.driveController, drivetrain));
 
 			return drivetrain;
 		}else{
@@ -116,7 +116,7 @@ public class DrivetrainSubsystem implements Subsystem {
 			double rotateSpeed;
 			rotateSpeed = rotateController.calculate(getGyroRotation().getDegrees(), rotateTarget - 180);
 			rotateSpeed = rotateSpeed * Constants.Drivetrain.MAX_SPEED;
-			rotateSpeed = MoreMath.MinMax(rotateSpeed, 3,-3);
+			rotateSpeed = MoreMath.minMax(rotateSpeed, 3,-3);
 
 			ChassisSpeeds speeds = new ChassisSpeeds(x, y, rotateSpeed);
 

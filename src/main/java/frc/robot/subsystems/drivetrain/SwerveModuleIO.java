@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrian;
+package frc.robot.subsystems.drivetrain;
 
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
