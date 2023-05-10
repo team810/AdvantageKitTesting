@@ -54,9 +54,11 @@ public class Gripper extends SubsystemBase {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    if (this.state == GripperStates.OPEN) {
+    if (this.gripperMotor.getEncoder().getPosition() > 3.5) { // value for hard limiting needs to be tested as well
+      gripperMotor.set(-0.25); 
+    } else if (this.state == GripperStates.OPEN) {
       gripperMotor.set(MoreMath.minMax(gripperController.calculate(gripperMotor.getEncoder().getPosition(), 
-                  this.gripperSetpoint), -0.5, 0.5));
+                  this.gripperSetpoint), -0.2, 0.2));
     }    
   }
 }
