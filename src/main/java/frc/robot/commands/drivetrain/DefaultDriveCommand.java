@@ -4,18 +4,18 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.drivetrian.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import lib.MoreMath;
 
 import java.util.function.Supplier;
 
 
-public class DeffultDriveCommand extends CommandBase {
+public class DefaultDriveCommand extends CommandBase {
 
 	private final Supplier<XboxController> controller;
 	private final DrivetrainSubsystem m_drive;
 
-	public DeffultDriveCommand(Supplier<XboxController> controller, DrivetrainSubsystem m_drive) {
+	public DefaultDriveCommand(Supplier<XboxController> controller, DrivetrainSubsystem m_drive) {
 		this.controller = controller;
 		this.m_drive = m_drive;
 
@@ -38,7 +38,7 @@ public class DeffultDriveCommand extends CommandBase {
 //		} else {
 //			return 0.0;
 //		}
-		if (MoreMath.MinMax(value, deadband, -deadband) == deadband || MoreMath.MinMax(value, deadband, -deadband) == -deadband)
+		if (MoreMath.minMax(value, deadband, -deadband) == deadband || MoreMath.minMax(value, deadband, -deadband) == -deadband)
 		{
 			return Math.pow(value, 3);
 

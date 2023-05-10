@@ -6,7 +6,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drivetrian.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class RobotContainer
 {

@@ -3,7 +3,7 @@ package frc.robot.subsystems.arm;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
-public class Extender implements ArmIO{
+public class Extender implements ArmIO {
 	private ArmState state;
 
 	private final CANSparkMax motor;
