@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrian;
+package frc.robot.subsystems.drivetrain;
 
 public class ModuleSim {
 }
