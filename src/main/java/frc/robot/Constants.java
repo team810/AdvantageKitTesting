@@ -1,6 +1,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.PIDConstants;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.XboxController;
@@ -79,5 +81,11 @@ public class Constants {
 	public static class IntakeConstants
 	{
 		public static final double INTAKE_SPEED = .8;
+	}
+
+	public static final class GripperConstants
+	{
+		public static final int GRIPPER_ID = 14; 
+		public static final PIDController GRIPPER_CONTROLLER = new PIDController(0.15, 0, 0);
 	}
 }

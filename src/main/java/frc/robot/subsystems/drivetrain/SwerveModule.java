@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrian;
+package frc.robot.subsystems.drivetrain;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -94,7 +94,7 @@ public class SwerveModule {
 		if (Robot.isReal())
 		{
 			steerMotor.set(
-					MoreMath.MinMax(
+					MoreMath.minMax(
 							controller.calculate(canCoder.getAbsolutePosition(), angle),
 							Constants.Drivetrain.MAX_TURNING_SPEED,
 							-Constants.Drivetrain.MAX_TURNING_SPEED
@@ -102,7 +102,7 @@ public class SwerveModule {
 			);
 		} else if (Robot.isSimulation()) {
 			steerMotor.set(
-					MoreMath.MinMax(
+					MoreMath.minMax(
 							controller.calculate(canCoder.getAbsolutePosition(), angle),
 							Constants.Drivetrain.MAX_TURNING_SPEED,
 							-Constants.Drivetrain.MAX_TURNING_SPEED
