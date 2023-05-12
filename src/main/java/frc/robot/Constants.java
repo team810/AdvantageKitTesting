@@ -5,11 +5,14 @@ import com.pathplanner.lib.auto.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Constants {
 
 	public static final XboxController driveController = new XboxController(0);
+
+	public static final PneumaticHub PNEUMATIC_HUB = new PneumaticHub(18); 
 
 	public static final class Drivetrain
 	{
