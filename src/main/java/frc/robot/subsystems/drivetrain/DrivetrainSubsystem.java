@@ -19,10 +19,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	private static DrivetrainSubsystem drivetrain;
 
-	private final SwerveModule front_left;
-	private final SwerveModule front_right;
-	private final SwerveModule back_left;
-	private final SwerveModule back_right;
+	private final SwerveModuleIO front_left;
+	private final SwerveModuleIO front_right;
+	private final SwerveModuleIO back_left;
+	private final SwerveModuleIO back_right;
 
 	private final AHRS gyro;
 
@@ -56,33 +56,33 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		gyro = new AHRS();
 
-		front_left = new SwerveModule(
+		front_left = new ModuleSim(
 				Constants.Drivetrain.frontLeft.DRIVE_ID,
 				Constants.Drivetrain.frontLeft.STEER_ID,
 				Constants.Drivetrain.frontLeft.CAN_CODER_ID,
 				Constants.Drivetrain.frontLeft.CAN_CODER_OFFSET,
-				1
+				Modules.FL
 		);
-		front_right = new SwerveModule(
+		front_right = new ModuleSim(
 				Constants.Drivetrain.frontRight.DRIVE_ID,
 				Constants.Drivetrain.frontRight.STEER_ID,
 				Constants.Drivetrain.frontRight.CAN_CODER_ID,
 				Constants.Drivetrain.frontRight.CAN_CODER_OFFSET,
-				2
+				Modules.FR
 		);
-		 back_left = new SwerveModule(
+		 back_left = new ModuleSim(
 				Constants.Drivetrain.backLeft.DRIVE_ID,
 				Constants.Drivetrain.backLeft.STEER_ID,
 				Constants.Drivetrain.backLeft.CAN_CODER_ID,
 				Constants.Drivetrain.backLeft.CAN_CODER_OFFSET,
-				3
+				Modules.BL
 		);
-		back_right = new SwerveModule(
+		back_right = new ModuleSim(
 				Constants.Drivetrain.backRight.DRIVE_ID,
 				Constants.Drivetrain.backRight.STEER_ID,
 				Constants.Drivetrain.backRight.CAN_CODER_ID,
 				Constants.Drivetrain.backRight.CAN_CODER_OFFSET,
-				4
+				Modules.BR
 		);
 		modulePositions[0] = front_left.getModulePosition();
 		modulePositions[1] = front_right.getModulePosition();
@@ -209,7 +209,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	@Override
 	public void periodic() {
-
 
 		front_left.update();
 		front_right.update();
