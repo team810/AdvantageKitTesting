@@ -9,6 +9,8 @@ public interface SwerveModuleIO {
 	public SwerveModuleState getTargetStates();
 	public void setMode(CANSparkMax.IdleMode mode);
 	public SwerveModulePosition getModulePosition();
+
+	public SwerveModuleState getCurrentPosition();
 	public void update();
 
 }

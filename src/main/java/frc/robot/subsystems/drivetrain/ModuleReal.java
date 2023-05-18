@@ -3,128 +3,161 @@ package frc.robot.subsystems.drivetrain;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenixpro.hardware.core.CoreCANcoder;
-import com.ctre.phoenixpro.sim.CANcoderSimState;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import lib.MoreMath;
-import lib.SparkMax.AdvancedIdleMode;
-import lib.SparkMax.AdvancedSparkMax;
 import org.littletonrobotics.junction.Logger;
 
 public class ModuleReal implements SwerveModuleIO{
 	private final CANSparkMax driveMotor;
 	private final CANSparkMax steerMotor;
 
+	private final CANCoder canCoder;
+
+	private final SlewRateLimiter driveLimeter;
+	private final PIDController driveControllor;
 	private final RelativeEncoder driveEncoder;
-	private final RelativeEncoder steerEncoder;
+	private final SimpleMotorFeedforward driveFF;
 
-	private final SparkMaxPIDController driveController;
-	private final SparkMaxPIDController steerController;
+	private final ProfiledPIDController steerController;
 
-	private CANCoder canCoder;
+	private SwerveModuleState targetState;
 
-	private final double canOffset;
-	private Modules module;
+	private double angleSetpoint;
+	private double speedSetpoint;
 
-	private SwerveModulePosition modulePosition;
+	private final String moduleName;
 
-	private double speed;
-	private double angle;
-
-	public ModuleReal(
-			int driveID,
-			int steerID,
-			int canCoderID,
-			double canCoderOffset,
-			Modules module
-	)
+	public ModuleReal(int driveID, int steerID, int canCoderID, double canCoderOffset, Modules module)
 	{
-		canOffset = canCoderOffset;
-
 		driveMotor = new CANSparkMax(driveID, CANSparkMaxLowLevel.MotorType.kBrushless);
 		steerMotor = new CANSparkMax(steerID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
 		driveMotor.restoreFactoryDefaults();
 		steerMotor.restoreFactoryDefaults();
 
+		// Setting amps
 		driveMotor.setSmartCurrentLimit(40);
 		steerMotor.setSmartCurrentLimit(20);
 
+		driveMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+		driveLimeter = new SlewRateLimiter(5700, -50000,0); // Drive limiter
+		driveControllor = new PIDController(.5,0,0); //FIXME PID constants drive motor
+		driveEncoder = driveMotor.getEncoder();
+
+		driveFF = new SimpleMotorFeedforward(0,0,0); // FIXME FF constants
+
+		steerController = new ProfiledPIDController(.01,0,0,new TrapezoidProfile.Constraints(0,0)); // FIXME pid constants steer motor
+
+		steerController.enableContinuousInput(0,360);
+		steerController.setTolerance(1);
+
 		canCoder = new CANCoder(canCoderID);
 
-		CANCoderConfiguration configuration = new CANCoderConfiguration();
-		configuration.magnetOffsetDegrees = canCoderOffset;
-		configuration.absoluteSensorRange = AbsoluteSensorRange.valueOf(0);
-		canCoder.configAllSettings(configuration);
+		CANCoderConfiguration config = new CANCoderConfiguration();
+		config.absoluteSensorRange = AbsoluteSensorRange.valueOf(1);
+		config.magnetOffsetDegrees = canCoderOffset;
 
-		driveEncoder = driveMotor.getEncoder();
-		steerEncoder = steerMotor.getEncoder();
+		canCoder.configAllSettings(config);
 
-		driveController = driveMotor.getPIDController();
-		steerController = steerMotor.getPIDController();
+		switch (module)
+		{
+			case FL:
+				moduleName = "Front Left";
+				break;
+			case FR:
+				moduleName = "Front Right";
+				break;
+			case BL:
+				moduleName = "Back Left";
+				break;
+			case BR:
+				moduleName = "Back Right";
+				break;
+			default:
+				moduleName = "Front Left";
+				break;
+		}
 
-		driveController.setP(6e-5);
-		driveController.setI(0);
-		driveController.setD(0);
-		driveController.setFF(.000015);
-
-		steerController.setP(.1);
-		steerController.setI(0);
-		steerController.setD(0);
-		steerController.setFF(.001);
-
-		steerController.setPositionPIDWrappingMaxInput(360);
-		steerController.setPositionPIDWrappingMinInput(0);
-
-		steerController.setPositionPIDWrappingEnabled(true);
-
-		steerController.setOutputRange(-1,1);
-
-		steerEncoder.setPosition(canCoder.getAbsolutePosition());
-
-		steerController.setFeedbackDevice(steerEncoder);
-
-		modulePosition = new SwerveModulePosition(0,new Rotation2d());
+		targetState = new SwerveModuleState();
 	}
 	@Override
-	public void setModule(double speed, double angle) // speed in motor percent and angle in degrees
-	{
-		this.speed = speed;
-		this.angle = angle;
+	public void setModule(double speed, double angle) {
+
+		SwerveModuleState temp = targetState;
+		targetState = new SwerveModuleState(speed, new Rotation2d(Math.toRadians(angle)));
+//		targetState = SwerveModuleState.optimize(targetState, temp.angle);
+
+		speed = speed * 3.22; // Making speed in feet
+
+		speed = speed * 8.16; // Gear ratio
+		speed = speed * 60; // changing it from per second to per minute
+
+		speed = driveLimeter.calculate(speed);
+		MoreMath.minMax(speed, -5700, 5700);
+		speedSetpoint = speed;
+		angleSetpoint = targetState.angle.getDegrees();
+
 	}
 
-	private void updateModule()
-	{
-	}
 	@Override
-	public SwerveModuleState getTargetStates()
-	{
-		return new SwerveModuleState(speed,new Rotation2d(Math.toRadians(angle)));
+	public SwerveModuleState getTargetStates() {
+		return targetState;
 	}
+
 	@Override
 	public void setMode(CANSparkMax.IdleMode mode) {
-
+		driveMotor.setIdleMode(mode);
 	}
+
 	@Override
 	public SwerveModulePosition getModulePosition() {
-		return modulePosition;
+		return new SwerveModulePosition(driveEncoder.getPosition(),new Rotation2d(Math.toRadians(canCoder.getAbsolutePosition())));
 	}
+
+	@Override
+	public SwerveModuleState getCurrentPosition() {
+		setModule(targetState.speedMetersPerSecond, targetState.angle.getDegrees());
+		double speed;
+		speed = speedSetpoint;
+		speed = speedSetpoint / 60;
+		speed = speedSetpoint / 8.16;
+		speed = speedSetpoint / 3.22;
+
+		Rotation2d angle = new Rotation2d(Math.toRadians(angleSetpoint));
+
+		return new SwerveModuleState(speed,angle);
+	}
+
 	@Override
 	public void update() {
+		// PID controller update
+		double driveSpeed = driveControllor.calculate(driveEncoder.getVelocity(), speedSetpoint);
+		double turnSpeed = steerController.calculate(canCoder.getAbsolutePosition(), angleSetpoint);
 
-	}
+		driveSpeed = MoreMath.minMax(driveSpeed, -1, 1);
+		turnSpeed = MoreMath.minMax(turnSpeed, -.75, .75);
 
-	private void log() {
+		driveMotor.set(driveSpeed);
+		steerMotor.set(turnSpeed);
 
+		// Logging
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Volicty Setpoint", speedSetpoint);
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/SetSpeed",driveSpeed);
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Comparing", (targetState.speedMetersPerSecond / Constants.Drivetrain.MAX_SPEED) * 5700);
+
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Angle Setpoint", angleSetpoint);
 	}
 }

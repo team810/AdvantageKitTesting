@@ -14,7 +14,7 @@ public class DefaultDriveCommand extends CommandBase {
 
 	private final Supplier<XboxController> controller;
 	private final DrivetrainSubsystem m_drive;
-
+	private boolean slowMode = false;
 	public DefaultDriveCommand(Supplier<XboxController> controller, DrivetrainSubsystem m_drive) {
 		this.controller = controller;
 		this.m_drive = m_drive;
@@ -49,30 +49,32 @@ public class DefaultDriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		if (RobotState.isTeleop())
+		if (controller.get().getPOV() != -1)
 		{
-			if (controller.get().getPOV() != -1)
+			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_TURN;
+			m_drive.setRotateTarget(controller.get().getPOV());
+		} else if (controller.get().getPOV() == -1) {
+			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE;
+		}
+		if (RobotState.isAutonomous() && Constants.Drivetrain.DRIVE_MODE != Constants.Drivetrain.AUTO_ALINE) {
+			Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE;
+		}
+		double leftX = deadband(controller.get().getLeftX(), .15);
+		double leftY = deadband(controller.get().getLeftY(), .15);
+		double rightX = deadband(controller.get().getRightX(), .15);
+
+		if (controller.get().getLeftTriggerAxis() > .75)
+		{
+			if (slowMode == true)
 			{
-				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_TURN;
-				m_drive.setRotateTarget(controller.get().getPOV());
-			} else if (controller.get().getPOV() == -1) {
-				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE;
+				slowMode = false;
+				Constants.Drivetrain.MAX_SPEED = 3.68;
+			} else if (slowMode == false) {
+				Constants.Drivetrain.MAX_SPEED = 1.5;
 			}
-			if (RobotState.isAutonomous() && Constants.Drivetrain.DRIVE_MODE != Constants.Drivetrain.AUTO_ALINE) {
-				Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE;
-			}
-			double leftX = deadband(controller.get().getLeftX(), .15);
-			double leftY = deadband(controller.get().getLeftY(), .15);
-			double rightX = deadband(controller.get().getRightX(), .15);
-
-			m_drive.drive(-leftY, -leftX, rightX);
 		}
-
-		if (RobotState.isAutonomous())
-		{
-			m_drive.drive(0,0,0);
-		}
-
+		
+		m_drive.drive(-leftY, -leftX, rightX);
 	}
 
 	@Override

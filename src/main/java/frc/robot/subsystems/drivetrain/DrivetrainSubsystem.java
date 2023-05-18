@@ -35,8 +35,8 @@ public class DrivetrainSubsystem implements Subsystem {
 	private ChassisSpeeds autoAline;
 
 	private SwerveModuleState[] autoStates;
+	private SwerveModuleState[] moduleStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 	private double rotateTarget;
-
 
 
 	public static DrivetrainSubsystem getInstance()
@@ -55,35 +55,66 @@ public class DrivetrainSubsystem implements Subsystem {
 	private DrivetrainSubsystem() {
 
 		gyro = new AHRS();
-
-		front_left = new ModuleSim(
-				Constants.Drivetrain.frontLeft.DRIVE_ID,
-				Constants.Drivetrain.frontLeft.STEER_ID,
-				Constants.Drivetrain.frontLeft.CAN_CODER_ID,
-				Constants.Drivetrain.frontLeft.CAN_CODER_OFFSET,
-				Modules.FL
-		);
-		front_right = new ModuleSim(
-				Constants.Drivetrain.frontRight.DRIVE_ID,
-				Constants.Drivetrain.frontRight.STEER_ID,
-				Constants.Drivetrain.frontRight.CAN_CODER_ID,
-				Constants.Drivetrain.frontRight.CAN_CODER_OFFSET,
-				Modules.FR
-		);
-		 back_left = new ModuleSim(
-				Constants.Drivetrain.backLeft.DRIVE_ID,
-				Constants.Drivetrain.backLeft.STEER_ID,
-				Constants.Drivetrain.backLeft.CAN_CODER_ID,
-				Constants.Drivetrain.backLeft.CAN_CODER_OFFSET,
-				Modules.BL
-		);
-		back_right = new ModuleSim(
-				Constants.Drivetrain.backRight.DRIVE_ID,
-				Constants.Drivetrain.backRight.STEER_ID,
-				Constants.Drivetrain.backRight.CAN_CODER_ID,
-				Constants.Drivetrain.backRight.CAN_CODER_OFFSET,
-				Modules.BR
-		);
+		if (Robot.isSimulation())
+		{
+			front_left = new ModuleSim(
+					Constants.Drivetrain.frontLeft.DRIVE_ID,
+					Constants.Drivetrain.frontLeft.STEER_ID,
+					Constants.Drivetrain.frontLeft.CAN_CODER_ID,
+					Constants.Drivetrain.frontLeft.CAN_CODER_OFFSET,
+					Modules.FL
+			);
+			front_right = new ModuleSim(
+					Constants.Drivetrain.frontRight.DRIVE_ID,
+					Constants.Drivetrain.frontRight.STEER_ID,
+					Constants.Drivetrain.frontRight.CAN_CODER_ID,
+					Constants.Drivetrain.frontRight.CAN_CODER_OFFSET,
+					Modules.FR
+			);
+			back_left = new ModuleSim(
+					Constants.Drivetrain.backLeft.DRIVE_ID,
+					Constants.Drivetrain.backLeft.STEER_ID,
+					Constants.Drivetrain.backLeft.CAN_CODER_ID,
+					Constants.Drivetrain.backLeft.CAN_CODER_OFFSET,
+					Modules.BL
+			);
+			back_right = new ModuleSim(
+					Constants.Drivetrain.backRight.DRIVE_ID,
+					Constants.Drivetrain.backRight.STEER_ID,
+					Constants.Drivetrain.backRight.CAN_CODER_ID,
+					Constants.Drivetrain.backRight.CAN_CODER_OFFSET,
+					Modules.BR
+			);
+		} else { // This will happen if the robot is real
+			front_left = new ModuleReal(
+					Constants.Drivetrain.frontLeft.DRIVE_ID,
+					Constants.Drivetrain.frontLeft.STEER_ID,
+					Constants.Drivetrain.frontLeft.CAN_CODER_ID,
+					Constants.Drivetrain.frontLeft.CAN_CODER_OFFSET,
+					Modules.FL
+			);
+			front_right = new ModuleReal(
+					Constants.Drivetrain.frontRight.DRIVE_ID,
+					Constants.Drivetrain.frontRight.STEER_ID,
+					Constants.Drivetrain.frontRight.CAN_CODER_ID,
+					Constants.Drivetrain.frontRight.CAN_CODER_OFFSET,
+					Modules.FR
+			);
+			back_left = new ModuleReal(
+					Constants.Drivetrain.backLeft.DRIVE_ID,
+					Constants.Drivetrain.backLeft.STEER_ID,
+					Constants.Drivetrain.backLeft.CAN_CODER_ID,
+					Constants.Drivetrain.backLeft.CAN_CODER_OFFSET,
+					Modules.BL
+			);
+			back_right = new ModuleReal(
+					Constants.Drivetrain.backRight.DRIVE_ID,
+					Constants.Drivetrain.backRight.STEER_ID,
+					Constants.Drivetrain.backRight.CAN_CODER_ID,
+					Constants.Drivetrain.backRight.CAN_CODER_OFFSET,
+					Modules.BR
+			);
+		}
 		modulePositions[0] = front_left.getModulePosition();
 		modulePositions[1] = front_right.getModulePosition();
 		modulePositions[2] = back_left.getModulePosition();
@@ -96,7 +127,6 @@ public class DrivetrainSubsystem implements Subsystem {
 		rotateController.enableContinuousInput(-180, 180);
 
 		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), modulePositions, new Pose2d());
-
 
 	}
 	public void drive(double x, double y, double rotate)
@@ -138,24 +168,7 @@ public class DrivetrainSubsystem implements Subsystem {
 			}
 		}
 
-		double moduleStates[] =
-		{
-				states[0].angle.getDegrees(),states[0].speedMetersPerSecond,
-				states[1].angle.getDegrees(),states[1].speedMetersPerSecond,
-				states[2].angle.getDegrees(),states[2].speedMetersPerSecond,
-				states[3].angle.getDegrees(),states[3].speedMetersPerSecond
-		};
-		double targetStates[] =
-				{
-					front_left.getTargetStates().angle.getDegrees(),front_left.getTargetStates().speedMetersPerSecond,
-					front_right.getTargetStates().angle.getDegrees(),front_right.getTargetStates().speedMetersPerSecond,
-					back_left.getTargetStates().angle.getDegrees(),	back_left.getTargetStates().speedMetersPerSecond,
-					back_right.getTargetStates().angle.getDegrees(),back_right.getTargetStates().speedMetersPerSecond
-				};
-
-		Logger.getInstance().recordOutput("Drivetrain/TargetStatesModule", targetStates);
-		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
-		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
+		moduleStates = states;
 
 		setModuleStates(states);
 	}
@@ -196,7 +209,6 @@ public class DrivetrainSubsystem implements Subsystem {
 		back_left.setMode(CANSparkMax.IdleMode.kCoast);
 		back_right.setMode(CANSparkMax.IdleMode.kCoast);
 	}
-
 	private void teleopPeriodic()
 	{
 
@@ -205,8 +217,6 @@ public class DrivetrainSubsystem implements Subsystem {
 	{
 
 	}
-
-
 	@Override
 	public void periodic() {
 
@@ -259,6 +269,24 @@ public class DrivetrainSubsystem implements Subsystem {
 			odometry.update(gyro.getRotation2d(), modulePositions);
 		}
 
+		double targetStates[] =
+				{
+						front_left.getTargetStates().angle.getDegrees(),front_left.getTargetStates().speedMetersPerSecond,
+						front_right.getTargetStates().angle.getDegrees(),front_right.getTargetStates().speedMetersPerSecond,
+						back_left.getTargetStates().angle.getDegrees(),	back_left.getTargetStates().speedMetersPerSecond,
+						back_right.getTargetStates().angle.getDegrees(),back_right.getTargetStates().speedMetersPerSecond
+				};
+		double currentState[] =
+				{
+						front_left.getCurrentPosition().angle.getDegrees(),front_left.getCurrentPosition().speedMetersPerSecond,
+						front_right.getCurrentPosition().angle.getDegrees(),front_right.getCurrentPosition().speedMetersPerSecond,
+						back_left.getCurrentPosition().angle.getDegrees(),back_left.getCurrentPosition().speedMetersPerSecond,
+						back_right.getCurrentPosition().angle.getDegrees(),back_right.getCurrentPosition().speedMetersPerSecond,
+				};
+		Logger.getInstance().recordOutput("Drivetrain/CurrentModuleState", currentState);
+		Logger.getInstance().recordOutput("Drivetrain/TargetStatesModule", targetStates);
+		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
+		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
 		Logger.getInstance().recordOutput("Drivetrain/Position", odometry.getPoseMeters());
 	}
 
