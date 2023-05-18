@@ -21,7 +21,7 @@ public class Constants {
 
 		public static final double TURNING_SPEED_SIM = .7; // Degrees per tick
 
-		public static final double MAX_TURNING_SPEED = .8;
+		public static final double MAX_TURNING_SPEED = .7;
 		public static final class frontLeft
 		{
 			public final static int STEER_ID = 5;
@@ -62,7 +62,7 @@ public class Constants {
 		public static final int DISABLED = 5;
 		public static int DRIVE_MODE = 0;
 
-		public static final double MAX_SPEED = 3.8;
+		public static double MAX_SPEED = 3.68;
 
 		public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.635;
 		public static final double DRIVETRAIN_WHEELBASE_METERS = 0.635;
