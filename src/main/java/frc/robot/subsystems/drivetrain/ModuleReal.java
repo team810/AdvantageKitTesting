@@ -7,13 +7,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.Constants;
 import lib.MoreMath;
 import org.littletonrobotics.junction.Logger;
@@ -27,9 +25,8 @@ public class ModuleReal implements SwerveModuleIO{
 	private final SlewRateLimiter driveLimeter;
 	private final PIDController driveControllor;
 	private final RelativeEncoder driveEncoder;
-	private final SimpleMotorFeedforward driveFF;
 
-	private final ProfiledPIDController steerController;
+	private final PIDController steerController;
 
 	private SwerveModuleState targetState;
 
@@ -48,18 +45,17 @@ public class ModuleReal implements SwerveModuleIO{
 
 		// Setting amps
 		driveMotor.setSmartCurrentLimit(40);
-		steerMotor.setSmartCurrentLimit(20);
+		steerMotor.setSmartCurrentLimit(40);
 
 		driveMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		driveLimeter = new SlewRateLimiter(5700, -50000,0); // Drive limiter
-		driveControllor = new PIDController(.5,0,0); //FIXME PID constants drive motor
+		driveControllor = new PIDController(.00015,.001,0); //FIXME PID constants drive motor
 		driveEncoder = driveMotor.getEncoder();
 
-		driveFF = new SimpleMotorFeedforward(0,0,0); // FIXME FF constants
 
-		steerController = new ProfiledPIDController(.01,0,0,new TrapezoidProfile.Constraints(0,0)); // FIXME pid constants steer motor
+		steerController = new PIDController(.005,0,0);
 
 		steerController.enableContinuousInput(0,360);
 		steerController.setTolerance(1);
@@ -85,6 +81,7 @@ public class ModuleReal implements SwerveModuleIO{
 				break;
 			case BR:
 				moduleName = "Back Right";
+
 				break;
 			default:
 				moduleName = "Front Left";
@@ -95,10 +92,9 @@ public class ModuleReal implements SwerveModuleIO{
 	}
 	@Override
 	public void setModule(double speed, double angle) {
-
 		SwerveModuleState temp = targetState;
 		targetState = new SwerveModuleState(speed, new Rotation2d(Math.toRadians(angle)));
-//		targetState = SwerveModuleState.optimize(targetState, temp.angle);
+		targetState = SwerveModuleState.optimize(targetState, temp.angle);
 
 		speed = speed * 3.22; // Making speed in feet
 
@@ -131,7 +127,7 @@ public class ModuleReal implements SwerveModuleIO{
 	public SwerveModuleState getCurrentPosition() {
 		setModule(targetState.speedMetersPerSecond, targetState.angle.getDegrees());
 		double speed;
-		speed = speedSetpoint;
+		speed = driveEncoder.getVelocity();
 		speed = speedSetpoint / 60;
 		speed = speedSetpoint / 8.16;
 		speed = speedSetpoint / 3.22;
@@ -143,6 +139,12 @@ public class ModuleReal implements SwerveModuleIO{
 
 	@Override
 	public void update() {
+		if (RobotState.isDisabled())
+		{
+			speedSetpoint = 0;
+			angleSetpoint = 0;
+		}
+
 		// PID controller update
 		double driveSpeed = driveControllor.calculate(driveEncoder.getVelocity(), speedSetpoint);
 		double turnSpeed = steerController.calculate(canCoder.getAbsolutePosition(), angleSetpoint);
@@ -150,14 +152,17 @@ public class ModuleReal implements SwerveModuleIO{
 		driveSpeed = MoreMath.minMax(driveSpeed, -1, 1);
 		turnSpeed = MoreMath.minMax(turnSpeed, -.75, .75);
 
+
 		driveMotor.set(driveSpeed);
 		steerMotor.set(turnSpeed);
 
 		// Logging
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Volicty Setpoint", speedSetpoint);
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Angle", canCoder.getAbsolutePosition());
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/AngleSetpoint", angleSetpoint );
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/SetSpeed",driveSpeed);
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Comparing", (targetState.speedMetersPerSecond / Constants.Drivetrain.MAX_SPEED) * 5700);
-
+		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Volicty", driveEncoder.getVelocity());
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/Angle Setpoint", angleSetpoint);
 	}
 }

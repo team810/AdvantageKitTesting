@@ -182,16 +182,16 @@ public class DrivetrainSubsystem implements Subsystem {
 				moduleStates[0].angle.getDegrees()
 		);
 		front_right.setModule(
-				moduleStates[0].speedMetersPerSecond,
-				moduleStates[0].angle.getDegrees()
+				moduleStates[1].speedMetersPerSecond,
+				moduleStates[1].angle.getDegrees()
 		);
 		back_left.setModule(
-				moduleStates[0].speedMetersPerSecond,
-				moduleStates[0].angle.getDegrees()
+				moduleStates[2].speedMetersPerSecond,
+				moduleStates[2].angle.getDegrees()
 		);
 		back_right.setModule(
-				moduleStates[0].speedMetersPerSecond,
-				moduleStates[0].angle.getDegrees()
+				moduleStates[3].speedMetersPerSecond,
+				moduleStates[3].angle.getDegrees()
 		);
 	}
 
