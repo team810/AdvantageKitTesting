@@ -286,7 +286,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		Logger.getInstance().recordOutput("Drivetrain/CurrentModuleState", currentState);
 		Logger.getInstance().recordOutput("Drivetrain/TargetStatesModule", targetStates);
 		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
-		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getDegrees());
+		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getRadians());
 		Logger.getInstance().recordOutput("Drivetrain/Position", odometry.getPoseMeters());
 	}
 
