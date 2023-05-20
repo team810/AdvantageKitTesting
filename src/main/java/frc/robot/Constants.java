@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 public class Constants {
 
+	public static final boolean tuningMode = true;
 	public static final XboxController driveController = new XboxController(0);
 
 	public static final PneumaticHub PNEUMATIC_HUB = new PneumaticHub(18); 
@@ -62,7 +63,7 @@ public class Constants {
 		public static final int DISABLED = 5;
 		public static int DRIVE_MODE = 0;
 
-		public static double MAX_SPEED = 1.68;
+		public static double MAX_SPEED = 3.68;
 
 		public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.635;
 		public static final double DRIVETRAIN_WHEELBASE_METERS = 0.635;
