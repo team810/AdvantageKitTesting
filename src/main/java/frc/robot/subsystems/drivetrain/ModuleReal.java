@@ -50,6 +50,8 @@ public class ModuleReal implements SwerveModuleIO{
 		driveMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
 		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
+
+
 		driveLimeter = new SlewRateLimiter(5700, -50000,0); // Drive limiter
 		driveControllor = new PIDController(.00015,.001,0); //FIXME PID constants drive motor
 		driveEncoder = driveMotor.getEncoder();
@@ -75,16 +77,17 @@ public class ModuleReal implements SwerveModuleIO{
 				break;
 			case FR:
 				moduleName = "Front Right";
+				driveMotor.setInverted(true);
 				break;
 			case BL:
 				moduleName = "Back Left";
 				break;
 			case BR:
+				driveMotor.setInverted(true);
 				moduleName = "Back Right";
-
 				break;
 			default:
-				moduleName = "Front Left";
+				moduleName = "";
 				break;
 		}
 
@@ -143,6 +146,9 @@ public class ModuleReal implements SwerveModuleIO{
 		{
 			speedSetpoint = 0;
 			angleSetpoint = 0;
+
+			driveControllor.reset();
+			steerController.reset();
 		}
 
 		// PID controller update
