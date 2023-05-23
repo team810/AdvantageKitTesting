@@ -51,8 +51,7 @@ public class ModuleReal implements SwerveModuleIO{
 		steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 
-
-		driveLimeter = new SlewRateLimiter(5700, -50000,0); // Drive limiter
+		driveLimeter = new SlewRateLimiter(12, -12,0); // Drive limiter
 		driveControllor = new PIDController(.00015,.001,0); //FIXME PID constants drive motor
 		driveEncoder = driveMotor.getEncoder();
 
@@ -103,9 +102,7 @@ public class ModuleReal implements SwerveModuleIO{
 
 		speed = speed * 8.16; // Gear ratio
 		speed = speed * 60; // changing it from per second to per minute
-
-		speed = driveLimeter.calculate(speed);
-		MoreMath.minMax(speed, -5700, 5700);
+		
 		speedSetpoint = speed;
 		angleSetpoint = targetState.angle.getDegrees();
 
@@ -155,11 +152,12 @@ public class ModuleReal implements SwerveModuleIO{
 		double driveSpeed = driveControllor.calculate(driveEncoder.getVelocity(), speedSetpoint);
 		double turnSpeed = steerController.calculate(canCoder.getAbsolutePosition(), angleSetpoint);
 
-		driveSpeed = MoreMath.minMax(driveSpeed, -1, 1);
+		driveSpeed = MoreMath.minMax(driveSpeed, -12, 12);
 		turnSpeed = MoreMath.minMax(turnSpeed, -.75, .75);
 
+		driveSpeed = driveLimeter.calculate(driveSpeed);
 
-		driveMotor.set(driveSpeed);
+		driveMotor.setVoltage(driveSpeed);
 		steerMotor.set(turnSpeed);
 
 		// Logging
