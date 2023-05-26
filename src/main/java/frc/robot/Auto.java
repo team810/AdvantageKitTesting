@@ -23,8 +23,8 @@ public class Auto {
 
 		if (Robot.isSimulation())
 		{
-			Constants.Drivetrain.ROTATION_CONSTANTS = new PIDConstants(0,0,0);
-			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
+			Constants.Drivetrain.ROTATION_CONSTANTS = new PIDConstants(.25,0,0);
+			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(4,0,0);
 		}
 
 		

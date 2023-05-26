@@ -17,7 +17,7 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 	private final CameraIO cam;
 	private VisionSubsystem() {
-		cam = new CameraSim("yo", 90, new Transform3d(new Translation3d(0,0,0),new Rotation3d()),2,500, 500, .01);
+		cam = new CameraSim("yo", 125, new Transform3d(new Translation3d(.5,.5,0),new Rotation3d()),20,500, 500, 10);
 
 //		limelight = new Camera("USB__Live_camera", "http://localhost:5800");
 

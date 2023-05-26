@@ -49,15 +49,15 @@ public class TargetSim {
 		int targetSlot = 0;
 		Pose3d transformPos;
 
-		if (goal == Goal.kHigh)
-		{
-			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][2]);
-		} else if (goal == Goal.kMid) {
-			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][1]);
-		}else{
-			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][1]);
-		}
-		pose = new Transform3d(new Pose3d(DrivetrainSubsystem.getInstance().getPose()),transformPos);
+//		if (goal == Goal.kHigh)
+//		{
+//			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][2]);
+//		} else if (goal == Goal.kMid) {
+//			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][1]);
+//		}else{
+//			transformPos = new Pose3d(CameraSimConstants.blueCone[targetSlot][1]);
+//		}
+//		pose = new Transform3d(new Pose3d(DrivetrainSubsystem.getInstance().getPose()),transformPos);
 //		return new PhotonTrackedTarget(yaw, pitch, skew, id, pose, altPose, ambiguity, minAreaRectCorners, detectedCorners);
 		return null;
 	}
