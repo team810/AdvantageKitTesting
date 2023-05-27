@@ -31,15 +31,16 @@ public class ModuleSim implements SwerveModuleIO {
 	private SwerveModuleState targetState;
 	private SwerveModuleState currentState;
 
+	private SwerveModulePosition modulePosition;
+
 	private final static LoggedTunableNumber driveP = new LoggedTunableNumber("Drivetrain/driveP");
 	private final static LoggedTunableNumber driveI = new LoggedTunableNumber("Drivetrain/driveI");;
 	private final static LoggedTunableNumber driveD = new LoggedTunableNumber("Drivetrain/driveD");;
 
 	public ModuleSim(int driveID, int steerID, int canCoderID, double canCoderOffset, Modules module)
 	{
-
 		driveSim = new FlywheelSim(
-				DCMotor.getNEO(1),
+				DCMotor.getNEO(2),
 				8.16,
 				MoreMath.toMeters(WheelCircumference/12)
 		);
@@ -57,7 +58,6 @@ public class ModuleSim implements SwerveModuleIO {
 		driveRateController = new SlewRateLimiter(12,-50000,0);
 
 		steerController = new PIDController(.5,0,0);
-
 
 		switch (module)
 		{
@@ -84,6 +84,8 @@ public class ModuleSim implements SwerveModuleIO {
 		driveP.initDefault(driveController.getP());
 		driveI.initDefault(driveController.getI());
 		driveD.initDefault(driveController.getD());
+
+		modulePosition = new SwerveModulePosition(0,new Rotation2d(0));
 	}
 
 	@Override
@@ -107,7 +109,11 @@ public class ModuleSim implements SwerveModuleIO {
 
 	@Override
 	public SwerveModulePosition getModulePosition() {
-		return new SwerveModulePosition(driveSim.getAngularVelocityRadPerSec(), new Rotation2d(steerSim.getAngleRads()));
+		modulePosition = new SwerveModulePosition(
+				modulePosition.distanceMeters + (Robot.defaultPeriodSecs * targetState.speedMetersPerSecond),
+				targetState.angle
+		);
+		return modulePosition;
 	}
 
 	@Override
@@ -139,8 +145,10 @@ public class ModuleSim implements SwerveModuleIO {
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/TargetStateSpeed", targetState.speedMetersPerSecond);
 		Logger.getInstance().recordOutput("Drivetrain/" + moduleName + "/TargetStateAngle", targetState.angle.getDegrees());
 
+
 		driveController.setP(driveP.get());
 		driveController.setI(driveI.get());
 		driveController.setD(driveD.get());
+
 	}
 }

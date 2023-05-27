@@ -23,8 +23,8 @@ public class Auto {
 
 		if (Robot.isSimulation())
 		{
-			Constants.Drivetrain.ROTATION_CONSTANTS = new PIDConstants(0,0,0);
-			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
+			Constants.Drivetrain.ROTATION_CONSTANTS = new PIDConstants(.25,0,0);
+			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(4,0,0);
 		}
 
 		
@@ -46,7 +46,7 @@ public class Auto {
 	{
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE),
-				autoBuilder.fullAuto(PathPlanner.loadPath(pathName, new PathConstraints(2,3))),
+				autoBuilder.fullAuto(PathPlanner.loadPath(pathName, new PathConstraints(4,3))),
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		);
 	}
