@@ -46,7 +46,7 @@ public class Auto {
 	{
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE),
-				autoBuilder.fullAuto(PathPlanner.loadPath(pathName, new PathConstraints(2,3))),
+				autoBuilder.fullAuto(PathPlanner.loadPath(pathName, new PathConstraints(4,3))),
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		);
 	}
