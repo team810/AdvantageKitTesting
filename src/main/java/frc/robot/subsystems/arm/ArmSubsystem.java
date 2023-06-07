@@ -1,9 +1,8 @@
 package frc.robot.subsystems.arm;
 
 
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.Robot;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -15,19 +14,37 @@ public class ArmSubsystem extends SubsystemBase {
 	private final ArmIO Extender;
 	private final ArmIO Pivot;
 
-	private Mechanism2d mechanism;
+	private final ArmVisualization armVis;
 
 	private ArmSubsystem() {
-		Extender = new ExtenderSim(13);
-		Pivot = new PivotSim(12);
+		if (Robot.isReal())
+		{
+			Pivot = new PivotReal(12);
+			Extender = new ExtenderReal(13);
+		}else{
+			Pivot = new PivotSim(12);
+			Extender = new ExtenderSim(13);
+		}
 
-		mechanism = new Mechanism2d(20,20);
-		mechanism.getRoot("Swogged", DrivetrainSubsystem.getInstance().getPose().getX(), DrivetrainSubsystem.getInstance().getPose().getY());
+		armVis = new ArmVisualization(Pivot, Extender);
+
+		Pivot.setArm(ArmState.kRest);
+		Extender.setArm(ArmState.kRest);
 	}
 
 	@Override
 	public void periodic() {
-		mechanism.getRoot("Swogged", 0,0).setPosition( DrivetrainSubsystem.getInstance().getPose().getX(), DrivetrainSubsystem.getInstance().getPose().getY());
+		Pivot.update();
+		Extender.update();
+
+		armVis.update(Pivot, Extender);
+	}
+
+	public void setState(ArmState state)
+	{
+		Pivot.setArm(state);
+		Extender.setArm(state);
+		System.out.println("Set state");
 	}
 }
 

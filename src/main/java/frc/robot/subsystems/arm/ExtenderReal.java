@@ -10,6 +10,8 @@ public class ExtenderReal implements ArmIO {
 	private final RelativeEncoder encoder;
 	private final PIDController controller;
 
+	private ArmState state;
+
 	public ExtenderReal(int deviceID)
 	{
 		motor = new CANSparkMax(deviceID, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -19,12 +21,12 @@ public class ExtenderReal implements ArmIO {
 	}
 	@Override
 	public void setArm(ArmState state) {
-
+		this.state = state;
 	}
 
 	@Override
 	public ArmState getState() {
-		return null;
+		return state;
 	}
 
 	@Override

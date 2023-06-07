@@ -6,28 +6,32 @@ import com.revrobotics.REVPhysicsSim;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Robot;
+import lib.MoreMath;
+import org.littletonrobotics.junction.Logger;
 
 public class PivotSim implements ArmIO{
 	private final SingleJointedArmSim pivotSim;
 	private final CANSparkMax motor;
 	private final PIDController controller;
+	private final double REST_POS = 152;
 
 	private ArmState state;
 
 	public PivotSim(int deviceID)
 	{
 		pivotSim = new SingleJointedArmSim(
-				DCMotor.getNEO(1),
-				170,
-				20,
+				DCMotor.getFalcon500(1),
+				25,
+				0.02,
 				.5,
 				0,
-				90,
+				180,
 				false
 		);
 		motor = new CANSparkMax(deviceID, CANSparkMaxLowLevel.MotorType.kBrushless);
 		REVPhysicsSim.getInstance().addSparkMax(motor, DCMotor.getNEO(1));
-		controller = new PIDController(.01,0,0);
+		controller = new PIDController(1,1,0);
 	}
 	@Override
 	public void setArm(ArmState state) {
@@ -41,12 +45,19 @@ public class PivotSim implements ArmIO{
 
 	@Override
 	public void update() {
-		pivotSim.setInputVoltage(controller.calculate(pivotSim.getAngleRads(),ArmPos.ValueForStatePivot(state)));
+
+		double calc = MoreMath.minMax(controller.calculate(pivotSim.getAngleRads(),ArmPos.ValueForStatePivot(state)),-12,12);
+		System.out.println(calc);
+		pivotSim.setInputVoltage(calc);
+
+		pivotSim.update(Robot.defaultPeriodSecs);
+
+		Logger.getInstance().recordOutput("Voltage Draw", pivotSim.getCurrentDrawAmps());
 	}
 
 	@Override
 	public double getRawPos() {
 		// Angle
-		return pivotSim.getAngleRads();
+		return REST_POS - pivotSim.getAngleRads();
 	}
 }

@@ -3,18 +3,18 @@ package frc.robot.subsystems.arm;
 public class ArmPos {
 	public static class Extender
 	{
-		public final static double HighCone = 0;
-		public final static double HighCube = 0;
-		public final static double MidCone = 0;
-		public final static double MidCube = 0;
+		public final static double HighCone = 20;
+		public final static double HighCube = 20;
+		public final static double MidCone = 10;
+		public final static double MidCube = 10;
 		public final static double RestPos = 0;
 	}
 	public static class Pivot
 	{
-		public final static double HighCone = 0;
-		public final static double HighCube = 0;
-		public final static double MidCone = 0;
-		public final static double MidCube = 0;
+		public final static double HighCone = 120;
+		public final static double HighCube = 20;
+		public final static double MidCone = 10;
+		public final static double MidCube = 10;
 		public final static double RestPos = 0;
 	}
 
@@ -23,9 +23,9 @@ public class ArmPos {
 		switch (state)
 		{
 			case kHighCube:
-				return Pivot.HighCone;
-			case kHighCone:
 				return Pivot.HighCube;
+			case kHighCone:
+				return Pivot.HighCone;
 			case kMidCube:
 				return Pivot.MidCube;
 			case kMidCone:
