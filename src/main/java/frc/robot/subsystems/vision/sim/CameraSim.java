@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.CameraIO;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.SimVisionSystem;
 import org.photonvision.SimVisionTarget;
@@ -16,6 +15,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CameraSim implements CameraIO {
 	private final String camName;
@@ -68,30 +68,20 @@ public class CameraSim implements CameraIO {
 				t++;
 			}
 		}
-
-//		visionSystem.addSimVisionTarget(new SimVisionTarget(new Pose3d(0,0,0,new Rotation3d()),.5,.5,-1));
 	}
 	@Override
 	public void update() {
 		visionSystem.processFrame(DrivetrainSubsystem.getInstance().getPose());
-
-
-
-		if (camera.getLatestResult().hasTargets())
-		{
-			for (int i = 0; i < camera.getLatestResult().targets.size(); i++) {
-				Pose3d targetPos = new Pose3d(
-						DrivetrainSubsystem.getInstance().getPose()
-				);
-				targetPos = targetPos.transformBy(camera.getLatestResult().getTargets().get(i).getBestCameraToTarget());
-				Logger.getInstance().recordOutput("BestTargetPos_" + i, targetPos);
-			}
-		}
 	}
 
 	@Override
 	public PhotonTrackedTarget getTarget() {
-		return null;
+		return camera.getLatestResult().getBestTarget();
+	}
+
+	public List<PhotonTrackedTarget> getTargets()
+	{
+		return camera.getLatestResult().targets;
 	}
 }
 
