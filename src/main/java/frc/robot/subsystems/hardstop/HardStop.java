@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants; 
 
 public class HardStop extends SubsystemBase {
-  /** Creates a new HardStop. */
 
   private final DoubleSolenoid hardStop; 
   private HardStopStates state;  

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.vision;
+package frc.robot.subsystems.vision.enums;
 
 public enum VisionTargets {
 	kReflectiveTape,

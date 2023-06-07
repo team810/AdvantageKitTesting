@@ -6,4 +6,6 @@ public interface ArmIO {
 	public void setArm(ArmState state);
 	public ArmState getState();
 	public void update();
+
+	public double getRawPos();
 }
