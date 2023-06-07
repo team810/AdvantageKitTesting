@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Robot;
 import lib.MoreMath;
+import org.littletonrobotics.junction.Logger;
 
 public class PivotSim implements ArmIO{
 	private final SingleJointedArmSim pivotSim;
@@ -22,7 +23,7 @@ public class PivotSim implements ArmIO{
 		pivotSim = new SingleJointedArmSim(
 				DCMotor.getNEO(1).withReduction(170),
 				1,
-				.025,
+				1.5,
 				.5,
 				0,
 				Math.toRadians(180),
@@ -30,7 +31,7 @@ public class PivotSim implements ArmIO{
 		);
 		motor = new CANSparkMax(deviceID, CANSparkMaxLowLevel.MotorType.kBrushless);
 		REVPhysicsSim.getInstance().addSparkMax(motor, DCMotor.getNEO(1));
-		controller = new PIDController(8,0,0);
+		controller = new PIDController(10,0,0);
 	}
 	@Override
 	public void setArm(ArmState state) {
@@ -49,7 +50,9 @@ public class PivotSim implements ArmIO{
 
 		pivotSim.setInputVoltage(calc);
 
+
 		pivotSim.update(Robot.defaultPeriodSecs);
+		Logger.getInstance().recordOutput("Amps", pivotSim.getCurrentDrawAmps());
 	}
 
 	@Override

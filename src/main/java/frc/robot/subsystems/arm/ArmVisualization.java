@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class ArmVisualization {
@@ -17,6 +18,9 @@ public class ArmVisualization {
 	private MechanismLigament2d pivotLigament;
 	private MechanismLigament2d extenderLigament;
 
+	private LoggedTunableNumber pivotOffsetX;
+	private LoggedTunableNumber pivotOffsetY;
+
 	public ArmVisualization(ArmIO Pivot, ArmIO Extender)
 	{
 		this.Pivot = Pivot;
@@ -26,6 +30,8 @@ public class ArmVisualization {
 		robot = armBase.getRoot("Swogged", DrivetrainSubsystem.getInstance().getPose().getX(), DrivetrainSubsystem.getInstance().getPose().getY());
 		pivotLigament = new MechanismLigament2d("Pivot", 5, 0);
 
+		pivotOffsetX = new LoggedTunableNumber("x",.21);
+		pivotOffsetY = new LoggedTunableNumber("y", .94);
 	}
 
 	double x;
@@ -34,9 +40,9 @@ public class ArmVisualization {
 		this.Pivot = Pivot;
 		this.Extender = Extender;
 		Pose3d pivot = new Pose3d(
-				.32,
+				pivotOffsetX.get(),
 				0,
-				.83,
+				pivotOffsetY.get(),
 				new Rotation3d(0,Math.toRadians(Pivot.getRawPos()),0)
 		);
 		Logger.getInstance().recordOutput("See", pivot.getTranslation().getX());
