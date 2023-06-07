@@ -18,8 +18,8 @@ public class VisionSubsystem extends SubsystemBase {
 		return INSTANCE;
 	}
 
-	private List<PhotonTrackedTarget> targets;
-	private List<CameraIO> cam;
+	private List<PhotonTrackedTarget> targets = new ArrayList<>();
+	private List<CameraIO> cam = new ArrayList<>();
 	private VisionSubsystem() {
 		cam.add(new CameraSim("cam1", 125, new Transform3d(new Translation3d(.5,.5,0),new Rotation3d()),20,500, 500, 10));
 	}
