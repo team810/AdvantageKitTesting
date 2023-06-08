@@ -11,7 +11,7 @@ public class ArmPos {
 	}
 	public static class Pivot
 	{
-		public final static double HighCone = 120;
+		public final static double HighCone = 90;
 		public final static double HighCube = 20;
 		public final static double MidCone = 10;
 		public final static double MidCube = 10;
