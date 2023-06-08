@@ -26,6 +26,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	@Override
     public void periodic() {
+		cam.get(0).update();
 		targets.clear();
 
 		for (int i = 0; i < cam.size(); i++) {
@@ -33,6 +34,7 @@ public class VisionSubsystem extends SubsystemBase {
 			targets.addAll(camera.getTargets());
 		}
 		clean();
+
     }
 
 	private void clean()
@@ -52,8 +54,8 @@ public class VisionSubsystem extends SubsystemBase {
 			{
 				targetsViewed.add(targets.get(i).getFiducialId());
 			}
-
 		}
+
 	}
 
 	public List<PhotonTrackedTarget> getTargets()

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.CameraIO;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.SimVisionSystem;
 import org.photonvision.SimVisionTarget;
@@ -72,6 +73,17 @@ public class CameraSim implements CameraIO {
 	@Override
 	public void update() {
 		visionSystem.processFrame(DrivetrainSubsystem.getInstance().getPose());
+
+		if (camera.getLatestResult().hasTargets())
+		{
+			for (int i = 0; i < camera.getLatestResult().targets.size(); i++) {
+				Pose3d targetPos = new Pose3d(
+						DrivetrainSubsystem.getInstance().getPose()
+				);
+				targetPos = targetPos.transformBy(camera.getLatestResult().getTargets().get(i).getBestCameraToTarget());
+				Logger.getInstance().recordOutput("BestTargetPos_" + i, targetPos);
+			}
+		}
 	}
 
 	@Override

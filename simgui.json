@@ -25,7 +25,7 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
+    "Transitory Values": {
       "open": false
     },
     "transitory": {
