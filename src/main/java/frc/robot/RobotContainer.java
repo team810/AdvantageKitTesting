@@ -52,6 +52,6 @@ public class RobotContainer
      */
     public Command getAutonomousCommand()
     {
-        return Auto.getInstance().generateCommand("Path");
+        return Auto.getInstance().generateCommand();
     }
 }
