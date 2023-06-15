@@ -9,16 +9,12 @@ public class IntakeSubsystem extends SubsystemBase {
 	private static IntakeSubsystem INSTANCE;
     private IntakeStates intakeState;
 
-    private final SparkMaxGroup intakeMotors;
+    private final CANSparkMax left, right;
     private double manualSpeed;
 
     private IntakeSubsystem() {
-        intakeMotors = new SparkMaxGroup(
-                new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless),
-                false,
-                new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless),
-                true
-        );
+        left = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless);
+        right = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         this.manualSpeed = 0;
 	}
@@ -32,22 +28,28 @@ public class IntakeSubsystem extends SubsystemBase {
         switch (intakeState)
         {
             case kON:
-                intakeMotors.set(Constants.IntakeConstants.INTAKE_SPEED);
+                left.set(Constants.IntakeConstants.INTAKE_SPEED);
+                right.set(-Constants.IntakeConstants.INTAKE_SPEED);
                 break;
             case kOF:
-                intakeMotors.set(0);
+                left.set(0);
+                right.set(0);
                 break;
             case kSLOW:
-                intakeMotors.set(.25);
+                left.set(.25);
+                right.set(-.25);
                 break;
             case kReversedSlow:
-                intakeMotors.set(-.25);
+                left.set(-.25);
+                right.set(.25);
                 break;
             case kReversedFast:
-                intakeMotors.set(-Constants.IntakeConstants.INTAKE_SPEED);
+                left.set(-Constants.IntakeConstants.INTAKE_SPEED);
+                right.set(Constants.IntakeConstants.INTAKE_SPEED);
                 break;
             case kManual:
-                intakeMotors.set(manualSpeed);
+                left.set(manualSpeed);
+                right.set(-manualSpeed);
                 break;
         }
     }
