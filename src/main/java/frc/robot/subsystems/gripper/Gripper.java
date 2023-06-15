@@ -35,7 +35,7 @@ public class Gripper extends SubsystemBase {
      * empirically in order to make sure that
      * it can actually close on a cone/cube! 
      */
-    this.gripperMotor.set(-0.75); 
+    this.gripperMotor.set(-0.4); // This is the value that we currently have it at
   }
 
   

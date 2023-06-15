@@ -35,8 +35,7 @@ public class ArmVisualization {
 		pivotOffsetX = new LoggedTunableNumber("x",0);
 		pivotOffsetY = new LoggedTunableNumber("y", 0);
 	}
-
-	double x;
+	
 	public void update(ArmIO Pivot, ArmIO Extender)
 	{
 		this.Pivot = Pivot;
@@ -53,14 +52,6 @@ public class ArmVisualization {
 				pivot.getRotation()
 		);
 		extender = extender.transformBy(new Transform3d(new Translation3d(pivotOffsetX.get(),0,pivotOffsetY.get()),new Rotation3d()));
-
-
-//		Pose3d pivot = new Pose3d(
-//				.32,
-//				0,
-//				.7,
-//				new Rotation3d(0,Math.toRadians(152),0)
-//		);
 
 		Logger.getInstance().recordOutput("Arm3d", pivot, extender);
 		Logger.getInstance().recordOutput("ArmPos", Pivot.getRawPos());
