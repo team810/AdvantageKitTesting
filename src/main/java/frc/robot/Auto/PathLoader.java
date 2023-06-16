@@ -15,8 +15,8 @@ public class PathLoader {
 	};
 	private static final String[] intakeTargetList =
 	{
-		"First",
-		"Second"
+		"1",
+		"2"
 	};
 	public static String toString(Location location, GamePeice gamePeice, IntakeTarget intakeTarget)
 	{
@@ -43,6 +43,7 @@ public class PathLoader {
 				path = path.concat(gamePieceList[1]);
 				break;
 		}
+		path = path.concat("_");
 		switch (intakeTarget)
 		{
 			case first:

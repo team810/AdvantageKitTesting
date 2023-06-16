@@ -126,9 +126,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), modulePositions, new Pose2d());
 
 		rotateController.enableContinuousInput(-180, 180);
-
 		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), modulePositions, new Pose2d());
-
 	}
 	public void drive(double x, double y, double rotate)
 	{
@@ -163,10 +161,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		if (Robot.isSimulation()) {
 			double roationAmount = kinematics.toChassisSpeeds(states).omegaRadiansPerSecond;
-			if (roationAmount >= .1 || roationAmount <= -.1)
-			{
-				gyro.setAngleAdjustment(gyro.getAngleAdjustment() + (roationAmount * Constants.Drivetrain.TURNING_SPEED_SIM));
-			}
+			gyro.setAngleAdjustment(gyro.getAngleAdjustment() + (roationAmount * Constants.Drivetrain.TURNING_SPEED_SIM));
 		}
 
 		moduleStates = states;
@@ -314,6 +309,8 @@ public class DrivetrainSubsystem implements Subsystem {
 	}
 	public void resetPos(Pose2d pos)
 	{
+		resetGyro();
+		gyro.resetDisplacement();
 		odometry.resetPosition(getGyroRotation(),modulePositions, pos);
 	}
 	public void setAutoStates(SwerveModuleState[] mAutoStates) {

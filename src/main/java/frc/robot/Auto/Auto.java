@@ -47,13 +47,13 @@ public class Auto {
 	public Command generateCommand()
 	{
 
-		String path1;
-		String path2;
+		String path1 = PathLoader.toString(Location.kNonBump,GamePeice.kCone, IntakeTarget.first);
+		String path2 = PathLoader.toString(Location.kNonBump, GamePeice.kCube, IntakeTarget.second);
 
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE),
 				autoBuilder.followPath(PathPlanner.loadPath(path1, new PathConstraints(3.6,3.6))),
-				autoBuilder.fullAuto(PathPlanner.loadPath(autoPath, new PathConstraints(3.6,3))),
+				autoBuilder.followPath(PathPlanner.loadPath(path2, new PathConstraints(3.6,3.6))),
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		);
 	}

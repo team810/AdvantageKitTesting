@@ -20,7 +20,7 @@ public class Constants {
 		public static PIDConstants TRANSLATION_CONSTANTS = new PIDConstants(1,0,0);
 		public static PIDConstants ROTATION_CONSTANTS = new PIDConstants(1,0,0);
 
-		public static final double TURNING_SPEED_SIM = .7; // Degrees per tick
+		public static final double TURNING_SPEED_SIM = Math.PI / 2; // Degrees per tick
 
 		public static final double MAX_TURNING_SPEED = .7;
 		public static final class frontLeft
