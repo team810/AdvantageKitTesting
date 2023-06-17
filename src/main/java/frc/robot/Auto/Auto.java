@@ -12,6 +12,7 @@ import frc.robot.Robot;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class Auto {
 	private static Auto instance;
@@ -52,8 +53,7 @@ public class Auto {
 
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE),
-				autoBuilder.followPath(PathPlanner.loadPath(path1, new PathConstraints(3.6,3.6))),
-				autoBuilder.followPath(PathPlanner.loadPath(path2, new PathConstraints(3.6,3.6))),
+				autoBuilder.followPathGroup(List.of(PathPlanner.loadPath(path1, new PathConstraints(3.6, 3.6)), PathPlanner.loadPath(path2, new PathConstraints(3.6, 3.6)))),
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		);
 	}

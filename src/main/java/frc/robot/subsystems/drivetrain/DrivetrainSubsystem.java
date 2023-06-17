@@ -4,6 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
@@ -13,6 +14,7 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.commands.drivetrain.DefaultDriveCommand;
 import lib.MoreMath;
+import lib.NavxSim;
 import org.littletonrobotics.junction.Logger;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -38,6 +40,13 @@ public class DrivetrainSubsystem implements Subsystem {
 	private SwerveModuleState[] moduleStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 	private double rotateTarget;
 
+	private final NavxSim gyroSim;
+
+	// This is for simulating to make it more realistic
+	private final SlewRateLimiter limiterX;
+	private final SlewRateLimiter limiterY;
+	private final SlewRateLimiter limiterTheta;
+
 
 	public static DrivetrainSubsystem getInstance()
 	{
@@ -53,7 +62,10 @@ public class DrivetrainSubsystem implements Subsystem {
 	}
 
 	private DrivetrainSubsystem() {
-
+		limiterX = new SlewRateLimiter(2);
+		limiterY = new SlewRateLimiter(2);
+		limiterTheta = new SlewRateLimiter(2);
+		gyroSim = new NavxSim(0);
 		gyro = new AHRS();
 		if (Robot.isSimulation())
 		{
@@ -126,7 +138,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), modulePositions, new Pose2d());
 
 		rotateController.enableContinuousInput(-180, 180);
-		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), modulePositions, new Pose2d());
+		odometry = new SwerveDriveOdometry(kinematics,getGyroRotation(), modulePositions, new Pose2d());
 	}
 	public void drive(double x, double y, double rotate)
 	{
@@ -161,12 +173,24 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		if (Robot.isSimulation()) {
 			double roationAmount = kinematics.toChassisSpeeds(states).omegaRadiansPerSecond;
-			gyro.setAngleAdjustment(gyro.getAngleAdjustment() + (roationAmount * Constants.Drivetrain.TURNING_SPEED_SIM));
+
+			gyroSim.setRate(roationAmount);
 		}
+//		ChassisSpeeds newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+//				limiterX.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
+//				limiterY.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
+//				limiterTheta.calculate(kinematics.toChassisSpeeds(states).omegaRadiansPerSecond),
+//				getGyroRotation()
+//		);
+//		states = kinematics.toSwerveModuleStates(newSpeeds);
+
 
 		moduleStates = states;
 
 		setModuleStates(states);
+		System.out.println(gyroSim.getAngle());
+
+		gyroSim.update(Robot.defaultPeriodSecs);
 	}
 
 
@@ -262,7 +286,7 @@ public class DrivetrainSubsystem implements Subsystem {
 			modulePositions[2] = back_left.getModulePosition();
 			modulePositions[3] = back_right.getModulePosition();
 
-			odometry.update(gyro.getRotation2d(), modulePositions);
+			odometry.update(getGyroRotation(), modulePositions);
 		}
 
 		double targetStates[] =
@@ -282,12 +306,16 @@ public class DrivetrainSubsystem implements Subsystem {
 		Logger.getInstance().recordOutput("Drivetrain/CurrentModuleState", currentState);
 		Logger.getInstance().recordOutput("Drivetrain/TargetStatesModule", targetStates);
 		Logger.getInstance().recordOutput("Drivetrain/ModuleStates", moduleStates);
-		Logger.getInstance().recordOutput("Drivetrain/Gyro", gyro.getRotation2d().getRadians());
+		Logger.getInstance().recordOutput("Drivetrain/Gyro", getGyroRotation().getRadians());
 		Logger.getInstance().recordOutput("Drivetrain/Position", odometry.getPoseMeters());
 	}
 
 	public Rotation2d getGyroRotation()
 	{
+		if (Robot.isSimulation())
+		{
+			return new Rotation2d(gyroSim.getAngle());
+		}
 		return gyro.getRotation2d();
 	}
 
