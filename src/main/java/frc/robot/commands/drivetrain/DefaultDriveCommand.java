@@ -74,7 +74,7 @@ public class DefaultDriveCommand extends CommandBase {
 			}
 		}
 		
-		m_drive.drive(-leftY, -leftX, rightX);
+		m_drive.drive(-leftY, -leftX, -rightX);
 	}
 
 	@Override

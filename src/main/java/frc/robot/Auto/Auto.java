@@ -1,7 +1,5 @@
 package frc.robot.Auto;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,7 +18,7 @@ public class Auto {
 
 	private final HashMap<String, Command> eventMap = new HashMap<>();
 
-	private String autoPath;
+	private final PathLoader pathLoader;
 
 	private Auto()
 	{
@@ -31,6 +29,7 @@ public class Auto {
 			Constants.Drivetrain.TRANSLATION_CONSTANTS = new PIDConstants(4,0,0);
 		}
 
+
 		autoBuilder = new SwerveAutoBuilder(
 				DrivetrainSubsystem.getInstance()::getPose,
 				DrivetrainSubsystem.getInstance()::resetPos,
@@ -39,21 +38,29 @@ public class Auto {
 				Constants.Drivetrain.ROTATION_CONSTANTS,
 				DrivetrainSubsystem.getInstance()::setAutoStates,
 				eventMap,
-				false,
+				 true,
 				DrivetrainSubsystem.getInstance()
+		);
+
+		pathLoader = new PathLoader(
+				new LapData(GamePeice.kCube,Location.kNonBump, IntakeTarget.second),
+				new LapData(GamePeice.kCone,Location.kNonBump, IntakeTarget.first)
 		);
 	}
 
 	public Command generateCommand()
 	{
+//		String path1 = PathLoader.toString(Location.kNonBump, GamePeice.kCube, IntakeTarget.second);
+//		String path2= PathLoader.toString(Location.kNonBump,GamePeice.kCone, IntakeTarget.first);
+//
+//		PathPlannerTrajectory path1Trajectory = PathPlanner.loadPath(path1, new PathConstraints(3.6, 3.6));
+//		PathPlannerTrajectory path2Trajectory = PathPlanner.loadPath(path2, new PathConstraints(3.6,3.6));
 
-		String path1 = PathLoader.toString(Location.kNonBump,GamePeice.kCone, IntakeTarget.first);
-		String path2 = PathLoader.toString(Location.kNonBump, GamePeice.kCube, IntakeTarget.second);
+
 
 		return new SequentialCommandGroup(
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.AUTO_DRIVE_MODE),
-				autoBuilder.followPath(PathPlanner.loadPath(path1, new PathConstraints(3.6,3.6))),
-				autoBuilder.followPath(PathPlanner.loadPath(path2, new PathConstraints(3.6,3.6))),
+				autoBuilder.fullAuto(pathLoader.getTrajectory()),
 				new InstantCommand(() -> Constants.Drivetrain.DRIVE_MODE = Constants.Drivetrain.MANUEL_DRIVE_MODE)
 		);
 	}
