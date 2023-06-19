@@ -6,9 +6,17 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 import java.util.ArrayList;
 
+/**
+ * PathLoader
+ * This class is used to auto generate path trajectory's based on what the user inputs as lap data and location
+ * Supports up to three different laps and is specifically made for charged up.
+ *
+ * This class combines a bunch of small paths to create one big path.
+ */
 public class PathLoader {
 	private static final PathConstraints startPathConstraints = new PathConstraints(3.6, 3.6);
 
+	// You need to keep track of the handoff point of every auto location
 	/*
 		Non bump side handoff cords
 		3.35,4.5 ROT = 180
@@ -43,6 +51,7 @@ public class PathLoader {
 			boolean lap3Filled
 	)
 	{
+		// I know I could have just checked to see if they where null but this is quite funny
 		trajectory = new ArrayList<>();
 
 		trajectory.add(loadStartPath(lap1.getLocation()));
@@ -80,8 +89,15 @@ public class PathLoader {
 
 		return PathPlanner.loadPath(pathName, startPathConstraints);
 	}
+
+	/**
+	 *
+	 * @param lap This is the data class that stores the information about the lap.
+	 * @return This returns the two Path trajectory's needed for one lap
+	 */
 	private ArrayList<PathPlannerTrajectory> getLapTrajectory(LapData lap)
 	{
+		// This is just init the two string variables to prevent errors
 		 String path1 = ""; // This is the intake path
 		 String path2 = ""; // This is going to be the place path
 
@@ -100,8 +116,12 @@ public class PathLoader {
 				path2 = path2.concat(locationList[2]);
 				break;
 		}
+		// This is adding the spacing between the separate parts of the file name.
 		path1 = path1.concat("_");
 		path2 = path2.concat("_");
+
+
+		// This code is just generating a sting based on the data in lap data
 		switch (lap.getIntakeLocation())
 		{
 			case first:
@@ -136,6 +156,10 @@ public class PathLoader {
 	public ArrayList<PathPlannerTrajectory> getTrajectory() {
 		return trajectory;
 	}
+
+	/**
+	 * @param lap Create a new Lap Data class and enter in what you want the constraints of the path to be. When you run get Trajectory you will get a path that follows the constraints that you determined
+	 */
 	public PathLoader(LapData lap)
 	{
 		this(lap,null,null,true,false,false);
@@ -170,18 +194,26 @@ enum IntakeTarget
 	second
 }
 
+/**
+ *  This class is designed made to store data about what you want an auto lap to be. The data is then interpreted and converted into a string that is used to load the auto Trajectory.
+ */
 class LapData
 {
 	private final GamePeice gamePeice;
 	private final Location location;
 	private final IntakeTarget intakeLocation;
 
-	public LapData(GamePeice mGamePeice, Location mLocation, IntakeTarget mIntakeLocation)
+	/**
+	 * @param GamePeice // This is what game piece the robot will attempt to score
+	 * @param Location This is the starting Location of the robot
+	 * @param IntakeLocation This parameter determines weather the robot attempts to intake the close or far game piece in the middle of the filed
+	 */
+	public LapData(GamePeice GamePeice, Location Location, IntakeTarget IntakeLocation)
 	{
-		gamePeice = mGamePeice;
+		gamePeice = GamePeice;
 
-		location = mLocation;
-		intakeLocation = mIntakeLocation;
+		location = Location;
+		intakeLocation = IntakeLocation;
 	}
 
 	public GamePeice getGamePeice() {
