@@ -160,7 +160,7 @@ public class DrivetrainSubsystem implements Subsystem {
 			double rotateSpeed;
 			rotateSpeed = rotateController.calculate(getGyroRotation().getDegrees(), rotateTarget);
 			rotateSpeed = rotateSpeed * Constants.Drivetrain.MAX_SPEED;
-			rotateSpeed = MoreMath.minMax(rotateSpeed, -3,3);
+			rotateSpeed = MoreMath.minMax(rotateSpeed, -5,5);
 			System.out.println("Data:");
 			System.out.println(rotateSpeed);
 			System.out.println(rotateTarget);

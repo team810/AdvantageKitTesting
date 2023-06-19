@@ -7,7 +7,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TrajectoryCommand extends CommandBase {
+public class TrajectoryCommand {
 
 	private final VisionSubsystem vision;
 	private final DrivetrainSubsystem drivetrain;
 
 	private final Trajectory trajectory;
 	private final SwerveControllerCommand controller;
-	private static TrajectoryConfig config = new TrajectoryConfig(4,3);;
+	private static TrajectoryConfig config = new TrajectoryConfig(2,3);;
 
 	private final ProfiledPIDController thetaController;
 
@@ -58,9 +58,9 @@ public class TrajectoryCommand extends CommandBase {
 		config = xyConfig;
 
 		thetaController = new ProfiledPIDController(
-				0,0,0, new TrapezoidProfile.Constraints(-Math.PI,Math.PI)
+				1,0,0, new TrapezoidProfile.Constraints(2*Math.PI,2 * Math.PI)
 		);
-		thetaController.enableContinuousInput(-Math.PI, Math.PI);
+		thetaController.enableContinuousInput(0, 2 * Math.PI);
 
 		trajectory = TrajectoryGenerator.generateTrajectory(
 			poseList,
@@ -77,12 +77,10 @@ public class TrajectoryCommand extends CommandBase {
 				drivetrain::setAutoStates,
 				drivetrain
 		);
-
-		addRequirements(DrivetrainSubsystem.getInstance(), VisionSubsystem.getInstance());
 	}
 
-	@Override
-	public boolean isFinished() {
-		return controller.isFinished();
+	public Command getCommand()
+	{
+		return controller;
 	}
 }
