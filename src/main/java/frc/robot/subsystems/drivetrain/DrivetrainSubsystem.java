@@ -175,15 +175,15 @@ public class DrivetrainSubsystem implements Subsystem {
 			double roationAmount = kinematics.toChassisSpeeds(states).omegaRadiansPerSecond;
 
 			gyroSim.setRate(roationAmount);
-		}
-//		ChassisSpeeds newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-//				limiterX.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
-//				limiterY.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
-//				limiterTheta.calculate(kinematics.toChassisSpeeds(states).omegaRadiansPerSecond),
-//				getGyroRotation()
-//		);
-//		states = kinematics.toSwerveModuleStates(newSpeeds);
 
+//			ChassisSpeeds newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+//					limiterX.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
+//					limiterY.calculate(kinematics.toChassisSpeeds(states).vxMetersPerSecond),
+//					limiterTheta.calculate(kinematics.toChassisSpeeds(states).omegaRadiansPerSecond),
+//					getGyroRotation()
+//			);
+//			states = kinematics.toSwerveModuleStates(newSpeeds);
+		}
 
 		moduleStates = states;
 
@@ -312,6 +312,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
 	public Rotation2d getGyroRotation()
 	{
+
 		if (Robot.isSimulation())
 		{
 			return new Rotation2d(gyroSim.getAngle());
@@ -337,8 +338,10 @@ public class DrivetrainSubsystem implements Subsystem {
 	}
 	public void resetPos(Pose2d pos)
 	{
-		resetGyro();
-		gyro.resetDisplacement();
+		if (Robot.isSimulation() && RobotState.isAutonomous())
+		{
+			gyroSim.setAngle(0);
+		}
 		odometry.resetPosition(getGyroRotation(),modulePositions, pos);
 	}
 	public void setAutoStates(SwerveModuleState[] mAutoStates) {

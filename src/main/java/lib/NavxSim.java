@@ -17,11 +17,11 @@ public class NavxSim {
 	{
 		gyro.getAnalogInput();
 		setAngle((getRate() * updateTime)+ getAngle());
-		if (getAngle() >  2* Math.PI)
+		if (getAngle() > (2* Math.PI))
 		{
-			setAngle(getAngle() - 2 * Math.PI);
-		} else if (getAngle() < -0) {
-			setAngle(getAngle() + 2 * Math.PI);
+			setAngle(getAngle() - (2 * Math.PI));
+		} else if (getAngle() < 0) {
+			setAngle(getAngle() + (2 * Math.PI));
 		}
 	}
 
