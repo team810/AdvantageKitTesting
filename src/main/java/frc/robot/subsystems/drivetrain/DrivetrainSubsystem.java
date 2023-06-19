@@ -65,8 +65,10 @@ public class DrivetrainSubsystem implements Subsystem {
 		limiterX = new SlewRateLimiter(2);
 		limiterY = new SlewRateLimiter(2);
 		limiterTheta = new SlewRateLimiter(2);
+
 		gyroSim = new NavxSim(0);
 		gyro = new AHRS();
+
 		if (Robot.isSimulation())
 		{
 			front_left = new ModuleSim(
@@ -137,7 +139,8 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroRotation(), modulePositions, new Pose2d());
 
-		rotateController.enableContinuousInput(-180, 180);
+		rotateController.enableContinuousInput(0, 360);
+
 		odometry = new SwerveDriveOdometry(kinematics,getGyroRotation(), modulePositions, new Pose2d());
 	}
 	public void drive(double x, double y, double rotate)
@@ -155,10 +158,14 @@ public class DrivetrainSubsystem implements Subsystem {
 
 		} else if (Constants.Drivetrain.DRIVE_MODE == Constants.Drivetrain.AUTO_TURN) {
 			double rotateSpeed;
-			rotateSpeed = rotateController.calculate(getGyroRotation().getDegrees(), rotateTarget - 180);
+			rotateSpeed = rotateController.calculate(getGyroRotation().getDegrees(), rotateTarget);
 			rotateSpeed = rotateSpeed * Constants.Drivetrain.MAX_SPEED;
-			rotateSpeed = MoreMath.minMax(rotateSpeed, 3,-3);
-
+			rotateSpeed = MoreMath.minMax(rotateSpeed, -3,3);
+			System.out.println("Data:");
+			System.out.println(rotateSpeed);
+			System.out.println(rotateTarget);
+			System.out.println(getGyroRotation().getDegrees());
+			System.out.println("\n");
 			ChassisSpeeds speeds = new ChassisSpeeds(x, y, rotateSpeed);
 
 			states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getGyroRotation()));
@@ -169,6 +176,10 @@ public class DrivetrainSubsystem implements Subsystem {
 			states = autoStates;
 		}else{
 			states = kinematics.toSwerveModuleStates(new ChassisSpeeds(0,0,0));
+		}
+		if (Constants.Drivetrain.DRIVE_MODE != Constants.Drivetrain.AUTO_TURN)
+		{
+			rotateController.reset();
 		}
 
 		if (Robot.isSimulation()) {
@@ -188,7 +199,7 @@ public class DrivetrainSubsystem implements Subsystem {
 		moduleStates = states;
 
 		setModuleStates(states);
-		System.out.println(gyroSim.getAngle());
+//		System.out.println(gyroSim.getAngle());
 
 		gyroSim.update(Robot.defaultPeriodSecs);
 	}
@@ -279,6 +290,8 @@ public class DrivetrainSubsystem implements Subsystem {
 						modulePositions[3].angle.getDegrees(), modulePositions[3].distanceMeters
 				};
 
+
+
 		if (Robot.isSimulation())
 		{
 			modulePositions[0] = front_left.getModulePosition();
@@ -317,7 +330,11 @@ public class DrivetrainSubsystem implements Subsystem {
 		{
 			return new Rotation2d(gyroSim.getAngle());
 		}
-		return gyro.getRotation2d();
+		if (Robot.isReal())
+		{
+			return gyro.getRotation2d();
+		}
+		return null;
 	}
 
 	public void resetGyro()
